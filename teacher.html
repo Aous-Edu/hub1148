@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاضنة المبادرات النوعية بالثانوية الرابعة</title>
+  
+  <!-- خط القاهرة الرسمي المعتمد -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#1D4A44',      // الأخضر الزيتي الداكن (اللون السيادي الأساسي)
+              brown: '#B58255',     // البني الرملي / الأوكر (الإجراءات الرئيسية، التميز)
+              beige: '#E6DBC6',     // البيج الدافئ (التمييز الثانوي، العناصر النشطة)
+              midgreen: '#418378',  // الأخضر المعتدل (المكتملة، الإحصائيات)
+              sand: '#D4B494',      // الرملي الفاتح (مساند للمخططات، شارة قيد التخطيط والمراجعة)
+              maroon: '#B22B38',    // العنابي (مستوحى من نقاط الشعار، التنبيهات، تحتاج تعديل)
+              cream: '#F7F6F1'      // السكري الهادئ (الخلفية العامة للمنصة)
+            }
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F7F6F1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #D4B494;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #B58255;
+    }
+  </style>
+</head>
+<body class="bg-brand-cream text-slate-800 antialiased min-h-screen flex flex-col custom-scrollbar">
+
+  <!-- شريط الإشعارات والتنبيهات السريعة (Toast) -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toastContent" class="px-5 py-3 rounded-xl shadow-xl font-bold text-sm flex items-center gap-3 border text-white">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-base"></i>
+      <span id="toastMsg">تمت العملية بنجاح</span>
+    </div>
+  </div>
+
+  <!-- الشريط العلوي للمنصة (Navbar) -->
+  <header class="bg-brand-dark text-white sticky top-0 z-40 shadow-lg border-b-2 border-brand-brown">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- هوية ورؤية الثانوية الرابعة -->
+        <div class="flex items-center gap-3">
+          <div class="h-14 p-1.5 bg-white rounded-xl border border-brand-beige/40 flex items-center justify-center shadow-md">
+            <img src="logo.png" alt="شعار الثانوية الرابعة بالجبيل" class="h-full w-auto object-contain">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-0.5 rounded bg-brand-brown/20 text-brand-sand font-bold border border-brand-brown/30">
+                الثانوية الرابعة بالجبيل
+              </span>
+              <span class="text-xs text-brand-beige font-semibold hidden sm:inline">وزارة التعليم</span>
+            </div>
+            <h1 class="text-base sm:text-lg font-black text-white tracking-wide">حاضنة المبادرات النوعية بالثانوية الرابعة</h1>
+          </div>
+        </div>
+
+        <!-- ملف المنسوبة الحالي -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="flex items-center gap-2.5 bg-white/10 border border-white/15 px-3 py-1.5 rounded-xl">
+            <div class="w-8 h-8 rounded-full bg-brand-brown text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="text-right">
+              <div id="navUserName" class="text-xs font-bold text-white leading-tight">جاري التحميل...</div>
+              <div id="navUserRole" class="text-[11px] text-brand-beige font-medium leading-tight">منسوبة بالثانوية الرابعة</div>
+            </div>
+          </div>
+
+          <button onclick="logoutTeacher()" class="px-3 py-2 bg-brand-maroon/20 hover:bg-brand-maroon text-rose-100 hover:text-white border border-brand-maroon/40 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="تسجيل الخروج">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden sm:inline">خروج</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- التبويبات الرئيسية للتنقل السريع -->
+  <nav class="bg-white border-b border-brand-beige/80 sticky top-20 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center space-x-reverse space-x-2 sm:space-x-3 overflow-x-auto py-2.5 custom-scrollbar">
+        
+        <button onclick="switchTab('my-initiatives')" id="tabBtn-my-initiatives" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-brand-dark text-white shadow-sm">
+          <i class="fa-solid fa-rocket text-brand-sand"></i>
+          <span>مبادراتي وسجل الإنجاز</span>
+          <span id="badgeMyCount" class="px-2 py-0.5 rounded-full text-[11px] bg-brand-brown text-white font-bold">0</span>
+        </button>
+
+        <button onclick="switchTab('new-initiative')" id="tabBtn-new-initiative" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap text-slate-600 hover:text-brand-dark hover:bg-brand-beige/30">
+          <i class="fa-solid fa-plus-circle text-brand-brown"></i>
+          <span>+ أضيفي مبادرة جديدة</span>
+        </button>
+
+        <button onclick="switchTab('needs-bank')" id="tabBtn-needs-bank" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap text-slate-600 hover:text-brand-dark hover:bg-brand-beige/30">
+          <i class="fa-solid fa-lightbulb text-brand-brown"></i>
+          <span>بنك الاحتياجات والأفكار</span>
+          <span id="badgeIdeasCount" class="px-2 py-0.5 rounded-full text-[11px] bg-brand-maroon text-white font-bold min-w-[22px] text-center">0</span>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- محتوى الصفحة الرئيسي -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    
+    <!-- 1. قسم مبادراتي وسجل الإنجاز -->
+    <section id="section-my-initiatives" class="space-y-6">
+      
+      <!-- لوحة الترحيب والإحصاءات السريعة للمعلمة -->
+      <div class="bg-gradient-to-l from-brand-dark via-[#1e4e47] to-[#163a35] text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden border border-brand-dark/20">
+        <div class="absolute -left-12 -top-12 w-48 h-48 bg-brand-brown/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-brand-beige/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-brand-midgreen animate-ping"></span>
+              <span class="text-xs font-bold text-brand-sand">بوابة المبادرات النوعية للمعلمات</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white">مرحباً بكِ <span id="welcomeUserName" class="text-brand-sand">معلمتنا الفاضلة</span> 🌸</h2>
+            <p class="text-xs sm:text-sm text-brand-beige/90 mt-1 max-w-2xl leading-relaxed">
+              أهلاً بكِ في منصتكِ المدرسية لتوثيق وإدارة مبادراتكِ النوعية بالثانوية الرابعة بالجبيل. سجّلي أفكاركِ، وتابعي خطوات اعتمادها، وقيسي أثرها الميداني بكل يسر وموثوقية.
+            </p>
+          </div>
+
+          <div>
+            <button onclick="switchTab('new-initiative')" class="px-5 py-3 bg-brand-brown hover:bg-[#a17045] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-brand-brown/30 transition flex items-center gap-2">
+              <i class="fa-solid fa-plus-circle text-base"></i>
+              <span>أضيفي مبادرتكِ الآن</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- لوحة العدادات المباشرة -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10">
+          <div class="bg-white/10 backdrop-blur-sm p-3.5 rounded-2xl border border-white/15">
+            <div class="text-xs text-brand-beige font-semibold">إجمالي المبادرات</div>
+            <div id="statTotal" class="text-2xl font-black text-white mt-1">0</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm p-3.5 rounded-2xl border border-brand-sand/30">
+            <div class="text-xs text-brand-sand font-semibold">قيد التخطيط والمراجعة</div>
+            <div id="statReview" class="text-2xl font-black text-brand-sand mt-1">0</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm p-3.5 rounded-2xl border border-white/15">
+            <div class="text-xs text-emerald-200 font-semibold">قيد التنفيذ</div>
+            <div id="statProgress" class="text-2xl font-black text-emerald-300 mt-1">0</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm p-3.5 rounded-2xl border border-brand-midgreen/30">
+            <div class="text-xs text-emerald-100 font-semibold">مكتملة وموثقة</div>
+            <div id="statCompleted" class="text-2xl font-black text-emerald-200 mt-1">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- محدد نطاق العرض وفلاتر الحالة -->
+      <div class="space-y-3">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-3 rounded-2xl border border-brand-beige/80 shadow-sm">
+          <div class="flex items-center gap-2 p-1 bg-brand-cream rounded-xl text-xs font-bold w-full sm:w-auto border border-brand-beige/60">
+            <button onclick="setTeacherViewScope('my')" id="scopeBtn-my" class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-brand-dark text-white shadow-sm flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-user-check text-brand-sand"></i>
+              <span>مبادراتي فقط</span>
+              <span id="scopeBadgeMy" class="px-2 py-0.5 rounded-full text-[11px] bg-brand-brown text-white">0</span>
+            </button>
+            <button onclick="setTeacherViewScope('all')" id="scopeBtn-all" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-600 hover:text-brand-dark flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-school text-brand-brown"></i>
+              <span>مبادرات منسوبات المدرسة</span>
+              <span id="scopeBadgeAll" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-200 text-slate-700">0</span>
+            </button>
+          </div>
+
+          <div class="text-xs text-slate-500 font-medium px-2 flex items-center gap-2">
+            <i class="fa-solid fa-info-circle text-brand-brown"></i>
+            <span id="scopeExplanation">عرض مبادراتكِ ومتابعة بيانات الإنجاز الخاصة بكِ</span>
+          </div>
+        </div>
+
+        <!-- شريط التنبيه الخاص بخصوصية مبادرات المدرسة -->
+        <div id="scopeNoticeAll" class="hidden bg-brand-beige/30 border border-brand-sand/50 rounded-2xl p-4 text-xs text-[#73512b] flex items-start gap-3">
+          <i class="fa-solid fa-shield-halved text-base text-brand-brown mt-0.5"></i>
+          <div>
+            <span class="font-black">تنبيه الخصوصية المدرسية:</span>
+            <span> يتم هنا عرض المبادرات العامة للمدرسة فقط (اسم المبادرة واسم صاحبة المبادرة)، بينما تُحفظ جميع بيانات المبادرة وتفاصيلها لصاحبة المبادرة وإدارة المدرسة فقط.</span>
+          </div>
+        </div>
+
+        <!-- فلاتر الحالة والبحث -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap gap-2 text-xs font-bold">
+            <button onclick="filterTeacherInitiatives('all')" class="filter-pill px-3.5 py-1.5 rounded-xl bg-brand-dark text-white transition shadow-sm">الكل</button>
+            <button onclick="filterTeacherInitiatives('قيد التنفيذ')" class="filter-pill px-3.5 py-1.5 rounded-xl bg-white text-slate-600 hover:bg-brand-cream border border-brand-beige/60 transition">قيد التنفيذ</button>
+            <button onclick="filterTeacherInitiatives('مكتملة')" class="filter-pill px-3.5 py-1.5 rounded-xl bg-white text-slate-600 hover:bg-brand-cream border border-brand-beige/60 transition">مكتملة</button>
+            <button onclick="filterTeacherInitiatives('قيد المراجعة')" class="filter-pill px-3.5 py-1.5 rounded-xl bg-white text-slate-600 hover:bg-brand-cream border border-brand-beige/60 transition">قيد التخطيط والمراجعة</button>
+            <button onclick="filterTeacherInitiatives('تحتاج تعديل')" class="filter-pill px-3.5 py-1.5 rounded-xl bg-white text-slate-600 hover:bg-brand-cream border border-brand-beige/60 transition">تحتاج تعديل</button>
+          </div>
+
+          <div class="relative w-full sm:w-64">
+            <input type="text" id="searchTeacherInitiatives" oninput="renderTeacherInitiatives()" placeholder="ابحثي عن مبادرة أو مجال..." class="w-full pl-9 pr-4 py-2 bg-white border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition shadow-sm">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- شبكة بطاقات المبادرات -->
+      <div id="teacherInitiativesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- يتم ملء المبادرات آلياً عبر الجافاسكريبت -->
+      </div>
+
+    </section>
+
+    <!-- 2. قسم تقديم مبادرة جديدة -->
+    <section id="section-new-initiative" class="hidden space-y-6">
+      
+      <div class="glass-card p-6 sm:p-8 rounded-3xl border border-brand-beige/80 shadow-sm space-y-6">
+        
+        <div class="border-b border-brand-beige/60 pb-4">
+          <h2 class="text-2xl font-black text-brand-dark mt-2">تقديم مبادرة نوعية جديدة</h2>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">
+            سجّلي بيانات مبادرتكِ لرفعها لإدارة الثانوية الرابعة بالجبيل للاعتماد وإدراجها ضمن لوحة المبادرات النوعية المدرسية.
+          </p>
+        </div>
+
+        <form id="initiativeForm" onsubmit="event.preventDefault(); submitInitiative();" class="space-y-6">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-brand-dark mb-1.5">
+                عنوان المبادرة النوعية <span class="text-brand-maroon">*</span>
+              </label>
+              <input type="text" id="initTitle" required placeholder="مثال: المعمل الافتراضي للذكاء الاصطناعي..." class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-dark mb-1.5">
+                مجال المبادرة <span class="text-brand-maroon">*</span>
+              </label>
+              <select id="initCategory" required class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition">
+                <option value="التعليم والتعلم">التعليم والتعلم ونواتج التعلم</option>
+                <option value="تقني وذكاء اصطناعي">التقنية والذكاء الاصطناعي والتحول الرقمي</option>
+                <option value="البيئة الجاذبة">البيئة الجاذبة</option>
+                <option value="الانضباط المدرسي">الانضباط المدرسي</option>
+                <option value="التطوير المهني">التطوير المهني ومجتمعات التعلم المهنية</option>
+                <option value="الأنشطة والقيم">الأنشطة الطلابية والمهارات الحياتية</option>
+                <option value="الموهبة والابتكار">رعاية الموهبة والابتكار والبحث العلمي</option>
+                <option value="المسؤولية المجتمعية">المسؤولية المجتمعية والشراكات</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-brand-dark mb-1.5">
+                الفئة المستهدفة <span class="text-brand-maroon">*</span>
+              </label>
+              <input type="text" id="initTarget" required placeholder="مثال: طالبات الصف الثاني الثانوي مسار الحاسب" class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-dark mb-1.5">
+                عدد المستفيدات التقديري <span class="text-brand-maroon">*</span>
+              </label>
+              <input type="number" id="initBeneficiaries" required min="1" placeholder="مثال: 85" class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-brand-dark mb-1.5">
+              المشكلة أو الاحتياج المدرسي الذي تعالجه المبادرة <span class="text-brand-maroon">*</span>
+            </label>
+            <textarea id="initProblem" rows="2" required placeholder="حددي باختصار التحدي أو الاحتياج الميداني بالثانوية الرابعة..." class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-brand-dark mb-1.5">
+              مؤشر قياس الأثر الميداني <span class="text-brand-maroon">*</span>
+            </label>
+            <textarea id="initGoal" rows="2" required placeholder="ما هو المخرج المتوقع والأثر التعليمي القابل للقياس؟" class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-brand-dark mb-1.5">
+                رابط المبادرة
+              </label>
+              <input type="url" id="initEvidenceLink" placeholder="https://... رابط المبادرة (Google Drive / OneDrive / موقع المبادرة)" class="w-full px-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-brown focus:ring-2 focus:ring-brand-brown/20 transition font-mono">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-xs font-bold text-brand-dark">نسبة الإنجاز الحالية للمبادرة:</label>
+                <span id="progressLabel" class="text-xs font-black text-brand-brown">10%</span>
+              </div>
+              <input type="range" id="initProgress" min="0" max="100" step="5" value="10" oninput="document.getElementById('progressLabel').textContent = this.value + '%'" class="w-full accent-brand-brown cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                <span>فكرة وتخطيط (0%)</span>
+                <span>قيد التنفيذ (50%)</span>
+                <span>مكتملة الأركان (100%)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-brand-beige/25 rounded-2xl border border-brand-sand/50 text-xs text-[#73512b] flex items-center gap-3">
+            <i class="fa-solid fa-stamp text-xl text-brand-brown"></i>
+            <div>
+              تُرفع المبادرة آلياً إلى إدارة المدرسة (فريدة بنت سعود العتيبي) للمراجعة الإدارية والاعتماد أو تقديم الملاحظات التوجيهية.
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-brand-beige/60">
+            <button type="button" onclick="saveAsDraft()" class="px-5 py-2.5 bg-white hover:bg-brand-beige/40 text-slate-700 border border-brand-beige font-bold text-xs rounded-xl transition">
+              حفظ كمسودة
+            </button>
+            <button type="submit" class="px-7 py-3 bg-brand-brown hover:bg-[#a17045] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-brand-brown/25 transition flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>رفع المبادرة للاعتماد الإداري</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+    <!-- 3. قسم بنك الاحتياجات والأفكار المدرسية -->
+    <section id="section-needs-bank" class="hidden space-y-6">
+      <div class="glass-card p-6 sm:p-8 rounded-3xl border border-brand-beige/80 shadow-sm">
+        <span class="text-xs px-2.5 py-1 rounded bg-brand-brown/15 text-brand-brown font-bold border border-brand-brown/30">
+          فرص التطوير المدرسي
+        </span>
+        <h2 class="text-2xl font-black text-brand-dark mt-2">بنك الاحتياجات والأفكار المقترحة 💡</h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">أفكار واحتياجات مقترحة ومطروحة من قِبل إدارة المدرسة، يمكن لمنسوبات الثانوية الرابعة تبنيها وقيادتها ميدانياً.</p>
+
+        <div id="needsBankContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <!-- يتم ملء الأفكار ديناميكياً من قاعدة البيانات المعتمدة من الإدارة -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- نافذة منبثقة لتحديث نسبة الإنجاز ورابط المبادرة (Modal) -->
+  <div id="progressModal" class="fixed inset-0 bg-brand-dark/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-beige/80 space-y-4">
+      <div class="flex items-center justify-between border-b border-brand-beige/60 pb-3">
+        <h3 id="modalProgressTitle" class="text-sm font-bold text-brand-dark">تحديث نسبة الإنجاز ورابط المبادرة</h3>
+        <button onclick="closeProgressModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-4 py-2">
+        <input type="hidden" id="modalProgressInitId">
+        <div>
+          <div class="flex justify-between items-center mb-1 text-xs">
+            <span class="font-bold text-brand-dark">نسبة الإنجاز المحققة:</span>
+            <span id="modalProgressVal" class="font-black text-brand-brown text-sm">50%</span>
+          </div>
+          <input type="range" id="modalProgressSlider" min="0" max="100" step="5" value="50" oninput="document.getElementById('modalProgressVal').textContent = this.value + '%'" class="w-full accent-brand-brown cursor-pointer">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">تحديث رابط المبادرة المرفق (اختياري)</label>
+          <input type="text" id="modalProgressEvidenceUrl" placeholder="https://... رابط المبادرة المرفق" class="w-full px-3 py-2 bg-brand-cream border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown font-mono">
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-brand-beige/60 flex justify-end gap-2">
+        <button onclick="closeProgressModal()" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200">إلغاء</button>
+        <button onclick="saveProgressUpdate()" class="px-5 py-2 bg-brand-brown hover:bg-[#a17045] text-white text-xs font-bold rounded-xl shadow-md transition">حفظ التحديث</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة عدم تسجيل الدخول (في حال الدخول المباشر بدون حساب) لمنع أي تجاوز -->
+  <div id="unauthModal" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-beige text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-brand-brown/15 text-brand-brown mx-auto flex items-center justify-center text-3xl shadow-sm">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <h3 class="text-xl font-black text-brand-dark">بوابة المعلمات مؤمّنة</h3>
+        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+          للوصول إلى حاضنة المبادرات وإضافة وتحديث أعمالكِ بالثانوية الرابعة بالجبيل، يرجى تسجيل الدخول الآمن بحسابكِ أو إنشاء حساب معلمة جديد.
+        </p>
+      </div>
+
+      <div class="space-y-2.5 pt-2">
+        <a href="login.html" class="w-full py-3 bg-brand-brown hover:bg-[#a17045] text-white font-bold text-xs rounded-xl shadow-lg shadow-brand-brown/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>الانتقال لصفحة تسجيل الدخول</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- التذييل الموحد للمنصة -->
+  <footer class="bg-brand-dark text-white border-t border-white/10 mt-16 py-6 no-print">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+      <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-brand-beige">
+        <span>الثانوية الرابعة بالجبيل</span>
+        <span>•</span>
+        <span>حاضنة المبادرات النوعية بالثانوية الرابعة</span>
+        <span>•</span>
+        <span>مديرة المدرسة: فريدة بنت سعود العتيبي</span>
+      </div>
+      <div class="pt-1 flex flex-wrap items-center justify-center gap-2 text-[10px] text-white/45">
+        <span>تم الإعداد والتصميم بواسطة: أوس للخدمات التقنية</span>
+        <span>•</span>
+        <a href="https://wa.me/970568368357" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition" title="التواصل عبر واتساب">
+          <i class="fa-brands fa-whatsapp text-[11px]"></i>
+          <span>واتساب</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- المحرك البرمجي للمنصة (JavaScript) -->
+  <script>
+    // Supabase connection — مصدر البيانات المركزي للمنصة
+    const supabaseClient = window.__SCHOOL_SUPABASE_CLIENT__ ||
+      (window.supabase && window.SUPABASE_CONFIG
+        ? window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.publishableKey)
+        : null);
+
+    if (!supabaseClient) {
+      console.error('Supabase client is not initialized. تأكد من تحميل supabase-config.js.');
+    }
+
+    let centralInitiativesCache = [];
+    let centralIdeasCache = [];
+    let currentUserCache = null;
+
+    // بيانات الجلسة فقط للتوافق مع النسخ السابقة؛ البيانات الأساسية تأتي من Supabase.
+    const INDEX_STORAGE_KEYS = {
+      CURRENT_USER: 'moe_school4_v3_current_user',
+      USER_SESSION: 'moe_school4_v3_session',
+      IDEAS_BANK: 'moe_school4_v3_ideas_bank'
+    };
+
+    // =========================================================================
+    // قاعدة البيانات المركزية للمبادرات — Supabase هو المصدر الوحيد للبيانات
+    // =========================================================================
+    const UI_STATUS_TO_DB = {
+      'قيد المراجعة':'under_review',
+      'مرحلة التخطيط':'under_review',
+      'قيد التنفيذ':'in_progress',
+      'مكتملة':'completed',
+      'تحتاج تعديل':'rejected',
+      'مؤرشفة':'archived'
+    };
+    const DB_STATUS_TO_UI = {
+      new:'قيد المراجعة',
+      under_review:'قيد المراجعة',
+      approved:'قيد التنفيذ',
+      in_progress:'قيد التنفيذ',
+      completed:'مكتملة',
+      rejected:'تحتاج تعديل',
+      archived:'مؤرشفة'
+    };
+
+    function mapCentralInitiative(row, ownerMap = {}) {
+      const owner = ownerMap[row.owner_id] || {};
+      const data = row.data && typeof row.data === 'object' ? row.data : {};
+      return {
+        ...data,
+        id: row.id,
+        initiativeNumber: row.initiative_number || data.initiativeNumber || data.initiative_number || '',
+        ownerId: row.owner_id || data.ownerId || '',
+        title: row.title || data.title || '',
+        teacherName: stripHonorifics(owner.name || data.teacherName || data.teacher_name || ''),
+        teacherUsername: cleanEnglishUsername(owner.username || data.teacherUsername || ''),
+        category: row.category || data.category || '',
+        target: row.target_group || data.target || '',
+        beneficiaries: Number(row.beneficiaries_count || data.beneficiaries || 0) || 0,
+        startDate: row.start_date || data.startDate || '',
+        endDate: row.end_date || data.endDate || '',
+        status: DB_STATUS_TO_UI[row.status] || data.status || 'قيد المراجعة',
+        progress: Number(row.progress || data.progress || 0) || 0,
+        initiativeUrl: row.initiative_url || data.initiativeUrl || data.initiative_url || '',
+        evidenceLink: row.evidence_url || data.evidenceLink || '',
+        supervisorNotes: row.admin_notes || data.supervisorNotes || '',
+        createdAt: row.created_at ? row.created_at.slice(0,10) : (data.createdAt || ''),
+        isPublic: row.is_public !== false
+      };
+    }
+
+    function mapCentralIdea(row) {
+      return {
+        ...(row.data && typeof row.data === 'object' ? row.data : {}),
+        id: row.id, title: row.title || '', description: row.description || '',
+        category: row.category || '', createdAt: row.created_at || '',
+        is_public: row.is_public !== false, status: row.status || 'active'
+      };
+    }
+
+    async function refreshCentralContent() {
+      if (!supabaseClient) return;
+      try {
+        const { data: inits, error: ie } = await supabaseClient
+          .from('initiatives')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (ie) throw ie;
+
+        const rows = Array.isArray(inits) ? inits : [];
+        const ownerIds = [...new Set(rows.map(r => r.owner_id).filter(Boolean))];
+        let ownerMap = {};
+        if (ownerIds.length) {
+          const { data: owners, error: oe } = await supabaseClient
+            .from('profiles')
+            .select('id,name,username,email,position,department,is_active,data')
+            .in('id', ownerIds);
+          if (oe) console.warn('Initiative owners lookup:', oe);
+          (owners || []).forEach(o => { ownerMap[o.id] = o; });
+        }
+        centralInitiativesCache = rows.map(r => mapCentralInitiative(r, ownerMap));
+
+        const { data: ideas, error: de } = await supabaseClient
+          .from('ideas').select('*').order('created_at', { ascending: false });
+        if (de) {
+          console.error('Supabase ideas load failed:', de);
+          centralIdeasCache = [];
+        } else {
+          centralIdeasCache = (Array.isArray(ideas) ? ideas : [])
+            .filter(row => String(row.status || 'active').toLowerCase() === 'active')
+            .map(mapCentralIdea);
+        }
+        return centralInitiativesCache;
+      } catch (e) {
+        console.error('Supabase central content load failed:', e);
+        showToast(`تعذر تحميل البيانات من قاعدة البيانات: ${e.message || e}`, 'error');
+        return [];
+      }
+    }
+
+    function stripHonorifics(name) {
+      if (!name && name !== 0) return '';
+      let s = String(name).trim();
+      const titleRegex = /^(?:أستاذة|الاستاذة|الاستاذه|المعلمة|المعلمه|معلمة|معلمه|أستاذ|الاستاذ|دكتورة|دكتوره|الدكتورة|الدكتوره|دكتور|الدكتور|مهندسة|المهندسة|مهندس|المهندس|مديرة|المديرة|وكيلة|الوكيلة|أ[\.\/ـ\s]|ا[\.\/ـ\s]|د[\.\/ـ\s]|م[\.\/ـ\s])\s*/gi;
+      while (titleRegex.test(s)) {
+        s = s.replace(titleRegex, '').trim();
+      }
+      return s;
+    }
+
+    const CryptoSecurity = {
+      async sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+
+      async verifySession(sessionObj) {
+        if (!sessionObj || !sessionObj.token || !sessionObj.expiresAt) return false;
+        if (Date.now() > sessionObj.expiresAt) return false;
+        const parts = sessionObj.token.split(':');
+        if (parts.length !== 6) return false;
+        const [id, username, role, timestamp, randomHex, signature] = parts;
+        const payload = `${id}:${username}:${role}:${timestamp}:${randomHex}`;
+        const expectedSignature = await this.sha256(payload + ':sec4_session_salt_2026');
+        return signature === expectedSignature;
+      }
+    };
+
+    function cleanEnglishUsername(u) {
+      if (!u) return '';
+      return String(u).trim().toLowerCase().replace(/^@+/, '');
+    }
+
+    function normalizeArabicText(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/^(أستاذة|الاستاذة|الاستاذه|المعلمة|المعلمه|معلمة|معلمه|أستاذ|الاستاذ|دكتورة|دكتوره|د[\.\/ـ\s]|أ[\.\/ـ\s]|ا[\.\/ـ\s])+/gi, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/[ةه]/g, 'ه')
+        .replace(/[ىي]/g, 'ي')
+        .replace(/[^\w\s\u0600-\u06FF]/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function isArabicNameMatch(name1, name2) {
+      if (!name1 || !name2) return false;
+      const n1 = normalizeArabicText(name1);
+      const n2 = normalizeArabicText(name2);
+      if (!n1 || !n2) return false;
+      if (n1 === n2) return true;
+      if (n1.includes(n2) || n2.includes(n1)) return true;
+
+      const w1 = n1.split(' ').filter(w => w.length > 1);
+      const w2 = n2.split(' ').filter(w => w.length > 1);
+      if (w1.length === 0 || w2.length === 0) return false;
+
+      if (w1.length === 1 && w2.includes(w1[0])) return true;
+      if (w2.length === 1 && w1.includes(w2[0])) return true;
+
+      if (w1.length >= 2 && w2.length >= 2) {
+        if (w1[0] === w2[0] && w1[w1.length - 1] === w2[w2.length - 1]) return true;
+        const shortList = w1.length <= w2.length ? w1 : w2;
+        const longList = w1.length > w2.length ? w1 : w2;
+        if (shortList.every(w => longList.includes(w))) return true;
+
+        const stripAl = w => (w.startsWith('ال') && w.length > 4) ? w.slice(2) : w;
+        if (stripAl(w1[0]) === stripAl(w2[0]) && stripAl(w1[w1.length - 1]) === stripAl(w2[w2.length - 1])) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function isTeacherRecordMatch(teacher, query) {
+      if (!teacher || !query) return false;
+      const qStr = String(query).trim();
+      const qClean = cleanEnglishUsername(qStr);
+      const tUsername = cleanEnglishUsername(teacher.username);
+
+      if (qClean && tUsername && (qClean === tUsername || qClean === '@' + tUsername)) {
+        return true;
+      }
+
+      if (teacher.name && isArabicNameMatch(teacher.name, qStr)) {
+        return true;
+      }
+
+      if (teacher.username && isArabicNameMatch(teacher.username, qStr)) {
+        return true;
+      }
+
+      if (teacher.email && teacher.email.trim().toLowerCase() === qStr.toLowerCase()) {
+        return true;
+      }
+
+      if (teacher.phone) {
+        const cleanTPhone = String(teacher.phone).replace(/\D/g, '');
+        const cleanQPhone = qStr.replace(/\D/g, '');
+        if (cleanTPhone && cleanQPhone && cleanQPhone.length >= 7) {
+          if (cleanTPhone.endsWith(cleanQPhone) || cleanQPhone.endsWith(cleanTPhone)) {
+            return true;
+          }
+        }
+      }
+
+      if (teacher.id && String(teacher.id).toLowerCase() === qStr.toLowerCase()) {
+        return true;
+      }
+
+      return false;
+    }
+
+    async function consumeStaticAuthHandoff() {
+      try {
+        const hash = String(window.location.hash || '');
+        if (!hash.startsWith('#auth_handoff=')) return false;
+
+        const encoded = decodeURIComponent(hash.slice('#auth_handoff='.length));
+        const json = decodeURIComponent(escape(atob(encoded)));
+        const payload = JSON.parse(json);
+
+        if (!payload?.accessToken || !payload?.refreshToken) return false;
+
+        const { error } = await supabaseClient.auth.setSession({
+          access_token: payload.accessToken,
+          refresh_token: payload.refreshToken
+        });
+
+        if (error) throw error;
+
+        // حذف بيانات التسليم من الرابط فور استعادة الجلسة.
+        try {
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname + window.location.search
+          );
+        } catch (e) {
+          window.location.hash = '';
+        }
+
+        return true;
+      } catch (e) {
+        console.warn('Static auth handoff:', e);
+        return false;
+      }
+    }
+
+    async function checkTeacherAuth() {
+      // استعادة جلسة Supabase التي تم تسليمها من login.html قبل قراءة profile.
+      await consumeStaticAuthHandoff();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('u') || urlParams.has('user')) {
+        try {
+          const cleanPath = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, cleanPath);
+        } catch (e) {}
+      }
+
+      if (!supabaseClient) {
+        console.error('Supabase client is unavailable.');
+        showUnauthModal();
+        return null;
+      }
+
+      // Supabase Auth + profiles هما المصدر الأساسي والوحيد لبيانات المنسوبة.
+      try {
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        if (session?.user) {
+          const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+
+          const profileData = (profile?.data && typeof profile.data === 'object')
+            ? profile.data
+            : {};
+
+          const user = {
+            id: session.user.id,
+            name: stripHonorifics(profile?.name || session.user.user_metadata?.name || 'مستخدمة'),
+            username: cleanEnglishUsername(profile?.username || session.user.user_metadata?.username || ''),
+            email: profile?.email || session.user.email || '',
+            specialty: profile?.department || session.user.user_metadata?.specialty || '',
+            department: profile?.department || '',
+            position: profile?.position || profileData.position || session.user.user_metadata?.position || '',
+            phone: profile?.phone || profileData.phone || '',
+            schoolName: profile?.school_name || profile?.school || profileData.schoolName || profileData.school || session.user.user_metadata?.schoolName || 'الثانوية الرابعة بالجبيل',
+            role: profile?.role || 'teacher',
+            isActive: profile?.is_active !== false,
+            avatarUrl: profile?.avatar_url || profileData.avatarUrl || '',
+            profileData
+          };
+
+          currentUserCache = user;
+
+          // حفظ نسخة جلسة خفيفة فقط للتوافق مع النسخ السابقة، وليس كمصدر للبيانات.
+          try {
+            sessionStorage.setItem(INDEX_STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+            sessionStorage.setItem('moe_school4_current_user', JSON.stringify(user));
+          } catch (e) {}
+
+          return user;
+        }
+      } catch (e) {
+        console.error('Supabase session/profile error:', e);
+      }
+
+      // توافق مؤقت مع الجلسات القديمة الموجودة على الجهاز فقط.
+      let sessionStr =
+        sessionStorage.getItem(INDEX_STORAGE_KEYS.USER_SESSION) ||
+        localStorage.getItem(INDEX_STORAGE_KEYS.USER_SESSION) ||
+        sessionStorage.getItem('moe_school4_session') ||
+        localStorage.getItem('moe_school4_session');
+
+      if (sessionStr) {
+        try {
+          const session = JSON.parse(sessionStr);
+          const isValid = await CryptoSecurity.verifySession(session);
+          if (isValid && session.user) {
+            currentUserCache = session.user;
+            return session.user;
+          }
+        } catch (e) {}
+      }
+
+      showUnauthModal();
+      return null;
+    }
+
+    function ensureTeacherInDB(user) {
+      // لا يتم إنشاء/تعديل أي سجل محلي؛ حساب المنسوبة يُدار مركزياً في Supabase profiles.
+      return !!(user && user.id);
+    }
+
+    function showUnauthModal() {
+      const modal = document.getElementById('unauthModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function getCurrentUser() {
+      // المصدر الأول: بيانات profile التي تم تحميلها من Supabase في بداية الصفحة.
+      if (currentUserCache && currentUserCache.id) return currentUserCache;
+
+      // توافق مع جلسة الصفحة الحالية فقط.
+      const candidates = [
+        sessionStorage.getItem(INDEX_STORAGE_KEYS.CURRENT_USER),
+        sessionStorage.getItem('moe_school4_current_user'),
+        localStorage.getItem(INDEX_STORAGE_KEYS.CURRENT_USER),
+        localStorage.getItem('moe_school4_current_user')
+      ];
+
+      for (const userStr of candidates) {
+        if (!userStr) continue;
+        try {
+          const user = JSON.parse(userStr);
+          if (user?.id) {
+            currentUserCache = user;
+            return user;
+          }
+        } catch (e) {}
+      }
+
+      return null;
+    }
+
+    async function logoutTeacher() {
+      try { if (supabaseClient) await supabaseClient.auth.signOut(); } catch (e) { console.error(e); }
+      currentUserCache = null;
+      try {
+        sessionStorage.removeItem(INDEX_STORAGE_KEYS.CURRENT_USER);
+        localStorage.removeItem(INDEX_STORAGE_KEYS.CURRENT_USER);
+        sessionStorage.removeItem(INDEX_STORAGE_KEYS.USER_SESSION);
+        localStorage.removeItem(INDEX_STORAGE_KEYS.USER_SESSION);
+        localStorage.removeItem('moe_school4_current_user');
+        sessionStorage.removeItem('moe_school4_current_user');
+        localStorage.removeItem('moe_school4_session');
+        sessionStorage.removeItem('moe_school4_session');
+      } catch (e) {}
+      window.location.replace('login.html');
+    }
+
+    function applyCurrentUserUI(user) {
+      if (!user) user = getCurrentUser();
+      if (!user) return;
+      const navName = document.getElementById('navUserName');
+      const navRole = document.getElementById('navUserRole');
+      const welcomeName = document.getElementById('welcomeUserName');
+
+      if (navName) navName.textContent = user.name;
+      if (welcomeName) welcomeName.textContent = user.name;
+      if (navRole) {
+        const userTag = user.username ? `@${user.username}` : '';
+        const position = user.position || user.specialty || 'منسوبة';
+        const school = user.schoolName || 'الثانوية الرابعة بالجبيل';
+        navRole.textContent = userTag
+          ? `${userTag} • ${position} • ${school}`
+          : `${position} • ${school}`;
+      }
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['my-initiatives', 'new-initiative', 'needs-bank'];
+      
+      tabs.forEach(t => {
+        const section = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (section) section.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('bg-brand-dark', 'text-white', 'shadow-sm');
+          btn.classList.add('text-slate-600', 'hover:text-brand-dark', 'hover:bg-brand-beige/30');
+        }
+      });
+
+      const activeSection = document.getElementById(`section-${tabId}`);
+      const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+      if (activeSection) activeSection.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-dark', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('text-slate-600', 'hover:text-brand-dark', 'hover:bg-brand-beige/30');
+      }
+
+      if (tabId === 'my-initiatives') {
+        renderTeacherInitiatives();
+      } else if (tabId === 'needs-bank') {
+        renderNeedsBank();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function isTeacherMatch(item, currentUser) {
+      if (!item || !currentUser) return false;
+      if (item.teacherUsername && currentUser.username) {
+        if (cleanEnglishUsername(item.teacherUsername) === cleanEnglishUsername(currentUser.username)) {
+          return true;
+        }
+      }
+      if (item.teacherName && currentUser.name) {
+        if (isArabicNameMatch(item.teacherName, currentUser.name)) {
+          return true;
+        }
+      }
+      if (item.teacherName && currentUser.username) {
+        if (isArabicNameMatch(item.teacherName, currentUser.username)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    let teacherViewScope = 'my';
+    let currentFilter = 'all';
+
+    function setTeacherViewScope(scope) {
+      teacherViewScope = scope;
+      updateScopeUI();
+      renderTeacherInitiatives();
+    }
+
+    function updateScopeUI() {
+      const btnMy = document.getElementById('scopeBtn-my');
+      const btnAll = document.getElementById('scopeBtn-all');
+      const explanation = document.getElementById('scopeExplanation');
+      const noticeAll = document.getElementById('scopeNoticeAll');
+
+      if (teacherViewScope === 'my') {
+        if (btnMy) {
+          btnMy.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg bg-brand-dark text-white shadow-sm flex items-center justify-center gap-2 transition';
+        }
+        if (btnAll) {
+          btnAll.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-600 hover:text-brand-dark flex items-center justify-center gap-2 transition';
+        }
+        if (explanation) {
+          explanation.textContent = 'عرض مبادراتكِ ومتابعة بيانات الإنجاز الخاصة بكِ';
+        }
+        if (noticeAll) {
+          noticeAll.classList.add('hidden');
+        }
+      } else {
+        if (btnMy) {
+          btnMy.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-600 hover:text-brand-dark flex items-center justify-center gap-2 transition';
+        }
+        if (btnAll) {
+          btnAll.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg bg-brand-dark text-white shadow-sm flex items-center justify-center gap-2 transition';
+        }
+        if (explanation) {
+          explanation.textContent = 'استعراض عام لمبادرات منسوبات المدرسة (اسم المبادرة واسم صاحبتها فقط)';
+        }
+        if (noticeAll) {
+          noticeAll.classList.remove('hidden');
+        }
+      }
+    }
+
+    function filterTeacherInitiatives(status) {
+      currentFilter = status;
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.classList.remove('bg-brand-dark', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-600');
+      });
+      event.target.classList.add('bg-brand-dark', 'text-white');
+      event.target.classList.remove('bg-white', 'text-slate-600');
+      renderTeacherInitiatives();
+    }
+
+    function getStatusBadgeV2(status) {
+      if (status === 'قيد التنفيذ') {
+        return '<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-dark/15 text-brand-dark border border-brand-dark/30 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-dark animate-pulse"></span>قيد التنفيذ</span>';
+      } else if (status === 'مكتملة') {
+        return '<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-midgreen/15 text-brand-midgreen border border-brand-midgreen/30 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i>مكتملة</span>';
+      } else if (status === 'تحتاج تعديل') {
+        return '<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-maroon/15 text-brand-maroon border border-brand-maroon/30 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i>تحتاج تعديل</span>';
+      } else {
+        return '<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-sand/15 text-[#916b43] border border-brand-sand/40 flex items-center gap-1.5"><i class="fa-solid fa-hourglass-half text-[10px]"></i>قيد التخطيط والمراجعة</span>';
+      }
+    }
+
+    function renderTeacherInitiatives() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) return;
+      
+      const all = getInitiatives();
+
+      const search = (document.getElementById('searchTeacherInitiatives')?.value || '').trim().toLowerCase();
+      const myAll = all.filter(item => isTeacherMatch(item, currentUser));
+
+      // في العرض العام نعرض جميع المبادرات الموجودة في Supabase،
+      // لكن نكشف فقط اسم المبادرة واسم صاحبتها دون أي تفاصيل أخرى.
+      const publicAll = all.slice();
+
+      const badgeMyCount = document.getElementById('badgeMyCount');
+      const scopeBadgeMy = document.getElementById('scopeBadgeMy');
+      const scopeBadgeAll = document.getElementById('scopeBadgeAll');
+      if (badgeMyCount) badgeMyCount.textContent = myAll.length;
+      if (scopeBadgeMy) scopeBadgeMy.textContent = myAll.length;
+      if (scopeBadgeAll) scopeBadgeAll.textContent = publicAll.length;
+      const currentStatsList = (teacherViewScope === 'my') ? myAll : publicAll;
+      document.getElementById('statTotal').textContent = currentStatsList.length;
+      document.getElementById('statReview').textContent = currentStatsList.filter(i => i.status === 'قيد المراجعة' || i.status === 'مرحلة التخطيط').length;
+      document.getElementById('statProgress').textContent = currentStatsList.filter(i => i.status === 'قيد التنفيذ').length;
+      document.getElementById('statCompleted').textContent = currentStatsList.filter(i => i.status === 'مكتملة').length;
+
+      let list = (teacherViewScope === 'my') ? myAll : publicAll;
+
+      if (currentFilter !== 'all') {
+        if (currentFilter === 'قيد المراجعة') {
+          list = list.filter(item => item.status === 'قيد المراجعة' || item.status === 'مرحلة التخطيط');
+        } else {
+          list = list.filter(item => item.status === currentFilter);
+        }
+      }
+
+      if (search) {
+        list = list.filter(item => 
+          (item.title && item.title.toLowerCase().includes(search)) || 
+          (item.teacherName && item.teacherName.toLowerCase().includes(search)) ||
+          (item.teacherUsername && item.teacherUsername.toLowerCase().includes(search)) ||
+          (item.category && item.category.toLowerCase().includes(search)) ||
+          (item.goal && item.goal.toLowerCase().includes(search))
+        );
+      }
+
+      const container = document.getElementById('teacherInitiativesList');
+      if (!container) return;
+
+      if (list.length === 0) {
+        if (teacherViewScope === 'my' && myAll.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full bg-white rounded-3xl p-10 text-center border border-brand-beige/80 space-y-4">
+              <div class="w-16 h-16 rounded-full bg-brand-brown/15 text-brand-brown mx-auto flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-folder-open"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-brand-dark">لا توجد مبادرات مسجلة باسمكِ حالياً</h3>
+                <p class="text-xs text-slate-500 mt-1">ابدئي الآن بإضافة أولى مبادراتكِ النوعية في منصة الثانوية الرابعة.</p>
+              </div>
+              <button onclick="switchTab('new-initiative')" class="px-5 py-2.5 bg-brand-brown text-white text-xs font-bold rounded-xl shadow-md hover:bg-[#a17045] transition inline-flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span>أضيفي مبادرتكِ الأولى</span>
+              </button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="col-span-full bg-white rounded-3xl p-10 text-center border border-brand-beige/80 text-slate-500 text-xs">
+              لا توجد مبادرات مطابقة للفلاتر أو كلمات البحث الحالية
+            </div>
+          `;
+        }
+        return;
+      }
+
+      if (teacherViewScope === 'all') {
+        container.className = 'space-y-2';
+      } else {
+        container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5';
+      }
+
+      container.innerHTML = list.map(item => {
+        const isMine = isTeacherMatch(item, currentUser);
+
+        // قاعدة الخصوصية: مبادرات المنسوبات في النطاق العام (اسم المبادرة + اسم صاحبة المبادرة فقط)
+        if (teacherViewScope === 'all') {
+          return `
+            <div class="bg-white border border-brand-beige/80 rounded-2xl px-4 py-3 shadow-sm hover:border-brand-sand transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="w-8 h-8 shrink-0 rounded-lg bg-brand-dark/10 text-brand-dark flex items-center justify-center">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <div class="font-black text-sm text-brand-dark truncate">
+                      ${escapeHtml(item.title || 'مبادرة نوعية')}
+                    </div>
+                    <div class="mt-0.5 text-[11px] font-bold text-brand-brown">
+                      صاحبة المبادرة: ${escapeHtml(stripHonorifics(item.teacherName) || 'غير محدد')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-white rounded-3xl p-5 border border-brand-beige/80 shadow-sm hover:shadow-md hover:border-brand-sand transition space-y-4 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-brand-cream text-brand-dark border border-brand-beige">
+                  ${escapeHtml(item.category || 'مبادرة نوعية')}
+                </span>
+                ${getStatusBadgeV2(item.status)}
+              </div>
+
+              <h3 class="font-black text-base text-brand-dark leading-snug line-clamp-2">
+                ${escapeHtml(item.title)}
+              </h3>
+
+              <div class="text-xs font-bold text-brand-brown flex items-center gap-1.5">
+                <i class="fa-solid fa-user-tie text-[11px]"></i>
+                <span>صاحبة المبادرة: ${escapeHtml(stripHonorifics(item.teacherName))}</span>
+              </div>
+
+              <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                ${escapeHtml(item.goal || item.problem || 'لا يوجد وصف مضاف')}
+              </p>
+
+              <div class="space-y-1.5 pt-1">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-500 font-semibold">نسبة الإنجاز المحققة:</span>
+                  <span class="font-black text-brand-brown">${item.progress || 0}%</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-brand-midgreen rounded-full transition-all duration-500" style="width: ${item.progress || 0}%"></div>
+                </div>
+              </div>
+
+              ${item.supervisorNotes ? `
+                <div class="p-2.5 bg-brand-beige/30 rounded-xl border border-brand-sand/40 text-[11px] text-[#73512b] space-y-1">
+                  <div class="font-bold flex items-center gap-1 text-brand-brown">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span>ملاحظة وتوجيه الإدارة:</span>
+                  </div>
+                  <p class="line-clamp-2">${escapeHtml(item.supervisorNotes)}</p>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-3 border-t border-brand-beige/60 flex items-center gap-2">
+              <a href="initiative-view.html?id=${encodeURIComponent(item.id)}" class="flex-1 py-2 bg-brand-dark/10 hover:bg-brand-dark hover:text-white text-brand-dark font-bold text-xs rounded-xl transition text-center flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-eye text-[11px]"></i>
+                <span>عرض التفاصيل</span>
+              </a>
+
+              <button onclick="openProgressModal('${item.id}', '${escapeHtml(item.title).replace(/'/g, "\\'")}', ${item.progress || 0})" class="px-3.5 py-2 bg-brand-brown/15 hover:bg-brand-brown hover:text-white text-brand-brown font-bold text-xs rounded-xl transition flex items-center gap-1" title="تحديث نسبة الإنجاز ورابط المبادرة">
+                <i class="fa-solid fa-sliders text-[11px]"></i>
+                <span>تحديث</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function getNextInitiativeNumber() {
+      if (!supabaseClient) throw new Error('اتصال Supabase غير متاح.');
+      const { data, error } = await supabaseClient
+        .from('initiatives')
+        .select('initiative_number')
+        .like('initiative_number', 'I%');
+      if (error) throw error;
+      let max = 0;
+      (data || []).forEach(row => {
+        const m = String(row.initiative_number || '').match(/^I(\d+)$/i);
+        if (m) max = Math.max(max, Number(m[1]));
+      });
+      return `I${max + 1}`;
+    }
+
+    function buildInitiativePayload(formData, user, initiativeNumber, status) {
+      return {
+        initiative_number: initiativeNumber,
+        owner_id: user.id,
+        title: formData.title,
+        description: formData.problem,
+        category: formData.category,
+        target_group: formData.target,
+        start_date: formData.startDate || null,
+        end_date: null,
+        beneficiaries_count: Number(formData.beneficiaries || 0) || 0,
+        initiative_url: formData.initiativeUrl || null,
+        evidence_url: formData.evidenceLink || null,
+        status,
+        progress: Number(formData.progress || 0) || 0,
+        admin_notes: '',
+        is_public: true,
+        data: {
+          title: formData.title,
+          teacherName: stripHonorifics(user.name),
+          teacherUsername: cleanEnglishUsername(user.username),
+          category: formData.category,
+          target: formData.target,
+          beneficiaries: Number(formData.beneficiaries || 0) || 0,
+          startDate: formData.startDate || '',
+          endDate: '',
+          problem: formData.problem,
+          goal: formData.goal,
+          initiativeUrl: formData.initiativeUrl || '',
+          evidenceLink: formData.evidenceLink || '',
+          status: DB_STATUS_TO_UI[status] || 'قيد المراجعة',
+          progress: Number(formData.progress || 0) || 0,
+          supervisorNotes: '',
+          createdAt: new Date().toISOString().split('T')[0]
+        }
+      };
+    }
+
+    async function submitInitiative() {
+      const currentUser = getCurrentUser();
+      if (!currentUser || !currentUser.id) {
+        showToast('يرجى تسجيل الدخول أولاً', 'error');
+        return;
+      }
+      if (!supabaseClient) {
+        showToast('تعذر الاتصال بقاعدة البيانات.', 'error');
+        return;
+      }
+
+      const title = document.getElementById('initTitle').value.trim();
+      const category = document.getElementById('initCategory').value;
+      const target = document.getElementById('initTarget').value.trim();
+      const beneficiaries = parseInt(document.getElementById('initBeneficiaries').value) || 0;
+      const problem = document.getElementById('initProblem').value.trim();
+      const goal = document.getElementById('initGoal').value.trim();
+      let initiativeUrl = document.getElementById('initEvidenceLink').value.trim();
+      const progress = parseInt(document.getElementById('initProgress').value) || 0;
+
+      if (!title || !problem || !goal) {
+        showToast('يرجى تعبئة كافة الحقول الإلزامية المطلوبة', 'error');
+        return;
+      }
+      if (initiativeUrl && !/^https?:\/\//i.test(initiativeUrl)) initiativeUrl = 'https://' + initiativeUrl;
+
+      try {
+        // استخدام جلسة Supabase نفسها التي تم الاعتماد عليها عند تحميل بيانات المعلمة.
+        // لا نستخدم auth.getUser() هنا حتى لا نفصل عملية الحفظ عن جلسة الصفحة الحالية.
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        const authUser = sessionData?.session?.user;
+        if (!authUser?.id) {
+          showToast('انتهت جلسة تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى.', 'error');
+          return;
+        }
+
+        // هذا هو UUID الحقيقي الذي تستخدمه RLS في auth.uid().
+        const ownerId = authUser.id;
+
+        // بناء البيانات باستخدام بيانات المعلمة المحملة من profiles،
+        // مع إجبار owner_id على UUID الخاص بجلسة Supabase.
+        const initiativeNumber = await getNextInitiativeNumber();
+        const status = progress === 100 ? 'completed' : (progress > 0 ? 'in_progress' : 'under_review');
+        const payload = buildInitiativePayload(
+          {
+            title,
+            category,
+            target,
+            beneficiaries,
+            problem,
+            goal,
+            initiativeUrl,
+            evidenceLink: '',
+            progress,
+            startDate: new Date().toISOString().split('T')[0]
+          },
+          {
+            ...currentUser,
+            id: ownerId
+          },
+          initiativeNumber,
+          status
+        );
+
+        // ضمان التطابق التام مع auth.uid() لمنع خطأ RLS.
+        payload.owner_id = ownerId;
+
+        const { error } = await supabaseClient
+          .from('initiatives')
+          .insert(payload);
+
+        if (error) {
+          console.error('Create initiative - Supabase error:', error);
+          console.error('Create initiative - owner_id:', payload.owner_id);
+          console.error('Create initiative - auth.uid():', authUser.id);
+          throw error;
+        }
+
+        await refreshCentralContent();
+        document.getElementById('initiativeForm').reset();
+        document.getElementById('progressLabel').textContent = '10%';
+        document.getElementById('initProgress').value = 10;
+        showToast(`✓ تم حفظ المبادرة ${initiativeNumber} في قاعدة البيانات ورفعها للاعتماد الإداري.`, 'success');
+        switchTab('my-initiatives');
+      } catch (e) {
+        console.error('Create initiative:', e);
+        showToast(`تعذر حفظ المبادرة: ${e.message || e}`, 'error');
+      }
+    }
+
+    async function saveAsDraft() {
+      const currentUser = getCurrentUser();
+      if (!currentUser || !currentUser.id) {
+        showToast('يرجى تسجيل الدخول أولاً', 'error');
+        return;
+      }
+      if (!supabaseClient) {
+        showToast('تعذر الاتصال بقاعدة البيانات.', 'error');
+        return;
+      }
+
+      const title = document.getElementById('initTitle').value.trim();
+      if (!title) {
+        showToast('يرجى إدخال عنوان المبادرة على الأقل لحفظها كمسودة', 'error');
+        return;
+      }
+      const category = document.getElementById('initCategory').value;
+      const target = document.getElementById('initTarget').value.trim();
+      const beneficiaries = parseInt(document.getElementById('initBeneficiaries').value) || 0;
+      const problem = document.getElementById('initProblem').value.trim();
+      const goal = document.getElementById('initGoal').value.trim();
+      let initiativeUrl = document.getElementById('initEvidenceLink').value.trim();
+      const progress = parseInt(document.getElementById('initProgress').value) || 0;
+      if (initiativeUrl && !/^https?:\/\//i.test(initiativeUrl)) initiativeUrl = 'https://' + initiativeUrl;
+
+      try {
+        // استخدام جلسة Supabase نفسها التي تم الاعتماد عليها عند تحميل بيانات المعلمة.
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        const authUser = sessionData?.session?.user;
+        if (!authUser?.id) {
+          showToast('انتهت جلسة تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى.', 'error');
+          return;
+        }
+
+        // UUID الحقيقي للمستخدم في Supabase، وهو نفسه auth.uid().
+        const ownerId = authUser.id;
+
+        const initiativeNumber = await getNextInitiativeNumber();
+        const payload = buildInitiativePayload(
+          {
+            title: title + ' (مسودة)',
+            category,
+            target,
+            beneficiaries,
+            problem,
+            goal,
+            initiativeUrl,
+            evidenceLink: '',
+            progress,
+            startDate: new Date().toISOString().split('T')[0]
+          },
+          {
+            ...currentUser,
+            id: ownerId
+          },
+          initiativeNumber,
+          'under_review'
+        );
+
+        // ضمان التطابق التام مع auth.uid() لمنع خطأ RLS.
+        payload.owner_id = ownerId;
+        payload.data.isDraft = true;
+
+        const { error } = await supabaseClient
+          .from('initiatives')
+          .insert(payload);
+
+        if (error) {
+          console.error('Save draft - Supabase error:', error);
+          console.error('Save draft - owner_id:', payload.owner_id);
+          console.error('Save draft - auth.uid():', authUser.id);
+          throw error;
+        }
+
+        await refreshCentralContent();
+        document.getElementById('initiativeForm').reset();
+        document.getElementById('progressLabel').textContent = '10%';
+        document.getElementById('initProgress').value = 10;
+        showToast(`✓ تم حفظ المسودة ${initiativeNumber} في قاعدة البيانات.`, 'success');
+        switchTab('my-initiatives');
+      } catch (e) {
+        console.error('Save draft:', e);
+        showToast(`تعذر حفظ المسودة: ${e.message || e}`, 'error');
+      }
+    }
+
+    function adoptIdea(title, category, desc) {
+      switchTab('new-initiative');
+      const titleEl = document.getElementById('initTitle');
+      const catEl = document.getElementById('initCategory');
+      const problemEl = document.getElementById('initProblem');
+      if (titleEl) titleEl.value = title || '';
+      if (catEl && category) catEl.value = category;
+      if (problemEl && desc) problemEl.value = desc;
+      showToast('تم تحميل بيانات الفكرة في نموذج التقديم، أكملي البيانات واعتمديها ✨');
+    }
+
+    function getInitiatives() {
+      return Array.isArray(centralInitiativesCache) ? centralInitiativesCache : [];
+    }
+
+    function getIdeas() {
+      return Array.isArray(centralIdeasCache) ? centralIdeasCache : [];
+    }
+
+    // تحديث عداد بنك الأفكار من بيانات Supabase فقط.
+    // الإشعار الفوري يعتمد على Realtime ولا يستخدم localStorage نهائياً.
+    function updateIdeasBadge() {
+      const ideas = getIdeas();
+      const badge = document.getElementById('badgeIdeasCount');
+      if (badge) {
+        badge.textContent = ideas.length;
+        badge.classList.toggle('hidden', ideas.length === 0);
+      }
+    }
+
+    function notifyNewIdea(count = 1) {
+      const message = count === 1
+        ? '💡 تمت إضافة فكرة جديدة إلى بنك الأفكار والاحتياجات. يمكنكِ الاطلاع عليها الآن.'
+        : `💡 تمت إضافة ${count} أفكار جديدة إلى بنك الأفكار والاحتياجات. يمكنكِ الاطلاع عليها الآن.`;
+      showToast(message, 'success');
+    }
+
+    function renderNeedsBank() {
+      const container = document.getElementById('needsBankContainer');
+      if (!container) return;
+      const ideas = getIdeas();
+      updateIdeasBadge();
+      if (!ideas || ideas.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white rounded-3xl p-10 text-center border border-brand-beige/80 text-slate-500 text-xs space-y-3">
+            <div class="w-12 h-12 mx-auto rounded-2xl bg-brand-brown/10 text-brand-brown flex items-center justify-center text-xl">
+              <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <p class="font-bold text-sm text-brand-dark">لا توجد أفكار أو احتياجات مطروحة حالياً من الإدارة المدرسية</p>
+            <p class="text-xs text-slate-400">ستظهر هنا أي احتياجات أو أفكار نوعية تطرحها إدارة المدرسة ليتم تبنيها من المنسوبات.</p>
+          </div>
+        `;
+        return;
+      }
+      container.innerHTML = ideas.map(idea => `
+        <div class="bg-white rounded-3xl p-6 border border-brand-beige/80 shadow-sm hover:shadow-md hover:border-brand-sand transition flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-brand-cream text-brand-dark border border-brand-beige">
+                ${escapeHtml(idea.category || 'فكرة مقترحة')}
+              </span>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-brown/15 text-brand-brown">
+                احتياج مدرسي
+              </span>
+            </div>
+            <h3 class="font-black text-sm text-brand-dark leading-snug">
+              ${escapeHtml(idea.title)}
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              ${escapeHtml(idea.description || idea.problem || '')}
+            </p>
+          </div>
+          <div class="pt-3 border-t border-brand-beige/60">
+            <button onclick="adoptIdea('${escapeHtml(idea.title).replace(/'/g, "\\'")}', '${escapeHtml(idea.category || '').replace(/'/g, "\\'")}', '${escapeHtml(idea.description || '').replace(/'/g, "\\'")}')" class="w-full py-2.5 bg-brand-brown hover:bg-[#a17045] text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-hand-holding-heart"></i>
+              <span>تبني المبادرة</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openProgressModal(id, title, currentProgress) {
+      const currentUser = getCurrentUser();
+      const item = getInitiatives().find(i => String(i.id) === String(id));
+      if (!item || !currentUser || String(item.ownerId) !== String(currentUser.id)) {
+        showToast('عفواً، لا يمكن تحديث نسبة الإنجاز إلا لصاحبة المبادرة فقط', 'error');
+        return;
+      }
+      document.getElementById('modalProgressInitId').value = id;
+      document.getElementById('modalProgressTitle').textContent = `تحديث نسبة إنجاز: ${title}`;
+      document.getElementById('modalProgressSlider').value = currentProgress || 0;
+      document.getElementById('modalProgressVal').textContent = (currentProgress || 0) + '%';
+      const evidenceInput = document.getElementById('modalProgressEvidenceUrl');
+      if (evidenceInput) evidenceInput.value = item.initiativeUrl || '';
+      document.getElementById('progressModal').classList.remove('hidden');
+    }
+
+    function closeProgressModal() {
+      document.getElementById('progressModal').classList.add('hidden');
+    }
+
+    async function saveProgressUpdate() {
+      const id = document.getElementById('modalProgressInitId').value;
+      const progress = parseInt(document.getElementById('modalProgressSlider').value) || 0;
+      let initiativeUrl = document.getElementById('modalProgressEvidenceUrl').value.trim();
+      const currentUser = getCurrentUser();
+      const item = getInitiatives().find(i => String(i.id) === String(id));
+      if (!item || !currentUser || String(item.ownerId) !== String(currentUser.id)) {
+        showToast('عفواً، لا يمكن تعديل بيانات المبادرة إلا لصاحبتها فقط', 'error');
+        closeProgressModal();
+        return;
+      }
+      if (initiativeUrl && !/^https?:\/\//i.test(initiativeUrl)) initiativeUrl = 'https://' + initiativeUrl;
+      const status = progress === 100 ? 'completed' : (progress > 0 ? 'in_progress' : (UI_STATUS_TO_DB[item.status] || 'under_review'));
+      try {
+        const mergedData = {
+          ...(item.data && typeof item.data === 'object' ? item.data : {}),
+          initiativeUrl, progress,
+          status: DB_STATUS_TO_UI[status] || item.status
+        };
+        const { error } = await supabaseClient.from('initiatives').update({
+          initiative_url: initiativeUrl || null,
+          progress,
+          status,
+          data: mergedData
+        }).eq('id', id).eq('owner_id', currentUser.id);
+        if (error) throw error;
+        await refreshCentralContent();
+        showToast('✓ تم حفظ وتحديث نسبة الإنجاز ورابط المبادرة في Supabase بنجاح', 'success');
+        renderTeacherInitiatives();
+        closeProgressModal();
+      } catch (e) {
+        console.error('Update initiative:', e);
+        showToast(`تعذر تحديث المبادرة: ${e.message || e}`, 'error');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastContent = document.getElementById('toastContent');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      if (type === 'success') {
+        toastContent.className = 'px-5 py-3 rounded-xl shadow-xl font-bold text-xs flex items-center gap-3 border bg-brand-dark border-brand-sand text-white';
+        toastIcon.className = 'fa-solid fa-circle-check text-base text-brand-sand';
+      } else {
+        toastContent.className = 'px-5 py-3 rounded-xl shadow-xl font-bold text-xs flex items-center gap-3 border bg-brand-maroon border-rose-400 text-white';
+        toastIcon.className = 'fa-solid fa-circle-exclamation text-base';
+      }
+
+      toast.classList.remove('opacity-0', '-translate-y-20', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-20', 'pointer-events-none');
+      }, 3500);
+    }
+
+    // ================================================================
+    // إشعار فوري عند إضافة فكرة جديدة من لوحة الإدارة — Supabase Realtime
+    // لا يعتمد على localStorage أو sessionStorage لتحديد الأفكار الجديدة.
+    // ================================================================
+    let ideasRealtimeChannel = null;
+
+    function subscribeToIdeasRealtime() {
+      if (!supabaseClient || ideasRealtimeChannel) return;
+
+      ideasRealtimeChannel = supabaseClient
+        .channel('school4-ideas-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'ideas'
+          },
+          async (payload) => {
+            const newIdea = payload?.new;
+            if (!newIdea) return;
+
+            // لا نعرض الإشعار إذا كانت الفكرة غير نشطة/مؤرشفة.
+            if (String(newIdea.status || 'active').toLowerCase() !== 'active') return;
+
+            // جلب البيانات من Supabase للتأكد من تحديث العداد والقائمة.
+            await refreshCentralContent();
+            updateIdeasBadge();
+
+            // الإشعار يظهر فور وصول INSERT من قاعدة البيانات.
+            notifyNewIdea(1);
+
+            // إذا كانت المعلمة في بنك الأفكار، حدّث القائمة مباشرة.
+            const section = document.getElementById('section-needs-bank');
+            if (section && !section.classList.contains('hidden')) {
+              renderNeedsBank();
+            }
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR') {
+            console.warn('Ideas Realtime channel error.');
+          } else if (status === 'TIMED_OUT') {
+            console.warn('Ideas Realtime subscription timed out.');
+          }
+        });
+    }
+
+    // مزامنة فورية وتلقائية عند تعديل البيانات في النوافذ الأخرى
+    try {
+      const bc = new BroadcastChannel('moe_school4_v3_channel');
+      bc.onmessage = (e) => {
+        if (e.data) {
+          if (e.data.type === 'INITIATIVES_UPDATED') {
+            renderTeacherInitiatives();
+          } else if (e.data.type === 'IDEAS_UPDATED') {
+            renderNeedsBank();
+          }
+        }
+      };
+    } catch (e) {}
+
+    window.addEventListener('storage', async (e) => {
+      if (e.key === INDEX_STORAGE_KEYS.IDEAS_BANK || e.key === 'moe_school4_ideas_bank') {
+        if (supabaseClient) await refreshCentralContent();
+        renderNeedsBank();
+      }
+    });
+
+    window.addEventListener('focus', async () => {
+      if (supabaseClient) {
+        await refreshCentralContent();
+        renderTeacherInitiatives();
+      }
+      renderNeedsBank();
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await checkTeacherAuth();
+      if (!user) return;
+      applyCurrentUserUI(user);
+      subscribeToIdeasRealtime();
+      await refreshCentralContent();
+      updateIdeasBadge();
+      renderTeacherInitiatives();
+      renderNeedsBank();
+    });
+  </script>
+
+</body>
+</html>

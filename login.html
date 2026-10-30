@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول | حاضنة المبادرات النوعية بالثانوية الرابعة</title>
+  
+  <!-- خط القاهرة الرسمي المعتمد -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#1D4A44',      // الأخضر الزيتي الداكن (اللون السيادي الأساسي)
+              brown: '#B58255',     // البني الرملي / الأوكر (الإجراءات الرئيسية، التميز)
+              beige: '#E6DBC6',     // البيج الدافئ (التمييز الثانوي، العناصر النشطة)
+              midgreen: '#418378',  // الأخضر المعتدل (المكتملة، الإحصائيات)
+              sand: '#D4B494',      // الرملي الفاتح (مساند للمخططات، شارة قيد التخطيط والمراجعة)
+              maroon: '#B22B38',    // العنابي (مستوحى من نقاط الشعار، التنبيهات، تحتاج تعديل)
+              cream: '#F7F6F1'      // السكري الهادئ (الخلفية العامة للمنصة)
+            }
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F7F6F1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #D4B494;
+      border-radius: 9999px;
+    }
+    input, select, textarea {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+    }
+    input::placeholder, textarea::placeholder {
+      color: #94a3b8 !important;
+      -webkit-text-fill-color: #94a3b8 !important;
+    }
+  </style>
+</head>
+<body class="bg-brand-cream text-slate-800 antialiased min-h-screen flex flex-col items-center p-4 selection:bg-brand-brown selection:text-white custom-scrollbar">
+
+  <!-- بطاقة المصادقة الرئيسية -->
+  <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-brand-beige overflow-hidden my-auto">
+    
+    <!-- الترويسة الرسمية الفاخرة باللون الزيتي الداكن والبيج -->
+    <div class="bg-brand-dark p-6 sm:p-7 text-center relative border-b-2 border-brand-brown">
+      <div class="w-20 h-20 bg-white p-2 rounded-2xl mx-auto shadow-md border border-brand-beige/50 flex items-center justify-center mb-3">
+        <img src="logo.png" alt="شعار الثانوية الرابعة بالجبيل" class="max-h-full max-w-full object-contain">
+      </div>
+      <div class="flex items-center justify-center gap-2 mb-1">
+        <span class="text-xs px-2.5 py-0.5 rounded bg-brand-brown/20 text-brand-sand font-bold border border-brand-brown/30">
+          الثانوية الرابعة بالجبيل
+        </span>
+        <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-brand-midgreen/20 text-emerald-300 font-black border border-brand-midgreen/40">
+          بوابة الدخول الموحدة
+        </span>
+      </div>
+      <h1 class="text-lg font-black text-white">حاضنة المبادرات النوعية بالثانوية الرابعة</h1>
+      <p class="text-xs text-brand-beige/80 mt-1">بوابة الدخول الموحدة للمنسوبات والإدارة</p>
+    </div>
+
+    <!-- أزرار التبديل بين التبويبات الثلاثة -->
+    <div class="p-2 bg-brand-cream/60 border-b border-brand-beige">
+      <div class="grid grid-cols-2 gap-1 bg-white p-1 rounded-2xl border border-brand-beige/80 text-xs font-bold">
+        <button type="button" onclick="switchTab('login')" id="btnTabLogin" class="py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 bg-brand-dark text-white shadow-sm">
+          <i class="fa-solid fa-right-to-bracket text-xs"></i>
+          <span>تسجيل الدخول</span>
+        </button>
+        <button type="button" onclick="switchTab('register')" id="btnTabRegister" class="py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 text-slate-600 hover:text-brand-dark">
+          <i class="fa-solid fa-user-plus text-xs"></i>
+          <span>تسجيل منسوبة جديدة</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- عداد المنسوبات المسجلات: يظهر العدد فقط دون أسماء حفاظًا على الخصوصية -->
+    <div class="px-5 pt-3">
+      <div class="flex items-center justify-center gap-2 rounded-xl border border-brand-beige/70 bg-brand-cream/40 px-4 py-2.5 text-xs font-bold text-brand-dark" aria-live="polite">
+        <i class="fa-solid fa-users text-brand-brown"></i>
+        <span>عدد المنسوبات المسجلات في النظام:</span>
+        <span id="registeredTeachersCount" class="inline-flex min-w-[2rem] justify-center rounded-full bg-brand-brown px-2 py-0.5 text-white font-black">—</span>
+        <span>منسوبة</span>
+      </div>
+    </div>
+
+    <!-- محتوى النماذج -->
+    <div class="p-6 sm:p-7 space-y-4">
+      
+      <!-- رسالة التنبيه والإشعارات -->
+      <div id="authAlert" class="hidden p-3.5 rounded-xl text-xs font-bold flex items-center gap-2 transition duration-200"></div>
+
+      <!-- 1. نموذج الدخول الموحد للمنسوبات والإدارة -->
+      <form id="formTeacherLogin" onsubmit="event.preventDefault(); handleUnifiedLogin();" class="space-y-4">
+        <div class="p-3 bg-brand-brown/10 rounded-2xl border border-brand-brown/25 text-[11px] text-[#73512b] space-y-0.5">
+          <div class="font-bold flex items-center gap-1.5 text-brand-dark">
+            <i class="fa-solid fa-right-to-bracket text-brand-brown"></i>
+            <span>دخول موحد للمنسوبات والإدارة</span>
+          </div>
+          <p>أدخلي اسم المستخدم أو البريد الإلكتروني وكلمة المرور، وسيتم توجيهكِ تلقائيًا إلى الصفحة المناسبة لصلاحية حسابكِ.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">اسم المستخدم أو البريد الإلكتروني <span class="text-brand-maroon">*</span></label>
+          <div class="relative">
+            <i class="fa-solid fa-user-circle absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="loginUsername" required autocomplete="username" dir="ltr" placeholder="اسم المستخدم أو example@email.com" class="w-full pr-10 pl-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">يمكن للمنسوبة استخدام اسم المستخدم أو البريد، وللإدارة استخدام البريد أو اسم المستخدم المسجل.</p>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-bold text-brand-dark">كلمة المرور <span class="text-brand-maroon">*</span></label>
+<button type="button" onclick="openUnifiedRecovery()" class="hidden text-[11px] text-brand-brown hover:underline font-bold">نسيت كلمة المرور؟</button>          </div>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full pr-10 pl-10 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+            <button type="button" onclick="togglePass('loginPassword')" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-eye text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-brand-brown hover:bg-[#a17045] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-brand-brown/25 transition duration-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>تسجيل الدخول</span>
+        </button>
+      </form>
+
+      <!-- 2. نموذج إنشاء حساب منسوبة جديد -->
+      <form id="formTeacherRegister" onsubmit="event.preventDefault(); handleTeacherRegister();" class="space-y-3.5 hidden">
+        <div class="p-3 bg-brand-brown/10 rounded-2xl border border-brand-brown/25 text-[11px] text-[#73512b] space-y-0.5">
+          <div class="font-bold flex items-center gap-1.5 text-brand-dark">
+            <i class="fa-solid fa-user-check text-brand-brown"></i>
+            <span>إنشاء حساب جديد أو تفعيل الحساب وتعيين كلمة المرور</span>
+          </div>
+          <p>أدخلي اسمكِ وتخصصكِ وكلمة المرور التي ترغبين بها، وسيتم حفظ واعتماد الحساب فوراً والدخول للمنصة.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">اسم المنسوبة الكامل (بالعربية) <span class="text-brand-maroon">*</span></label>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="regName" oninput="autoSuggestUsername(this.value)" required placeholder="مثال: سارة راشد الحربي" class="w-full pr-10 pl-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">يظهر رسمياً في اعتمادات المبادرة</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">أنواع المشاركات (الصفة / الدور المعتمد) <span class="text-brand-maroon">*</span></label>
+          <div class="relative">
+            <select id="regRole" required class="w-full px-3.5 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+              <option value="معلمة">معلمة</option>
+              <option value="إدارية">إدارية</option>
+              <option value="موجهة طلابية">موجهة طلابية</option>
+              <option value="وكيلة">وكيلة</option>
+              <option value="محضرة مختبر">محضرة مختبر</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-bold text-brand-dark">اسم المستخدم بالإنجليزية <span class="text-brand-maroon">*</span></label>
+            <span class="text-[10px] text-brand-brown font-mono font-bold" id="suggestedTag"></span>
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-at absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="regUsername" required dir="ltr" pattern="[a-zA-Z0-9_.-]+" placeholder="e.g. sara_h" class="w-full pr-10 pl-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs font-mono focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">أحرف إنجليزية وأرقام بدون مسافات (يُستخدم للدخول)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">التخصص / المادة التعليمية <span class="text-brand-maroon">*</span></label>
+          <div class="relative">
+            <i class="fa-solid fa-book-bookmark absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="regSpecialty" required placeholder="مثال: حاسب آلي، رياضيات، لغة عربية، فيزياء..." class="w-full pr-10 pl-4 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-dark mb-1">تعيين كلمة السر <span class="text-brand-maroon">*</span></label>
+          <div class="relative">
+            <i class="fa-solid fa-key absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="password" id="regPassword" required placeholder="••••••••" class="w-full pr-10 pl-10 py-2.5 bg-brand-cream/40 border border-brand-beige rounded-xl text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition">
+            <button type="button" onclick="togglePass('regPassword')" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-eye text-xs"></i>
+            </button>
+          </div>
+          <p class="text-[10px] text-brand-brown font-semibold mt-0.5">🔒 تُحفظ كلمة المرور مشفرة فورياً بنمط SHA-256 مع Salt للحماية</p>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-brand-dark hover:bg-[#163a35] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-circle-check text-brand-sand"></i>
+          <span>حفظ وتفعيل الحساب والدخول فوراً</span>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- التذييل الرسمي -->
+    <div class="p-4 bg-brand-cream/60 border-t border-brand-beige text-center">
+      <p class="text-[11px] text-slate-500 font-semibold">
+        الثانوية الرابعة بالجبيل • مديرة المدرسة / فريدة بنت سعود العتيبي
+      </p>
+    </div>
+
+  </div>
+
+  <!-- نافذة طلب استعادة وتغيير كلمة السر -->
+  <div id="forgotPassModal" class="fixed inset-0 bg-brand-dark/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-brand-beige space-y-4">
+      <div class="flex justify-between items-center border-b border-brand-beige/60 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-brand-brown/15 text-brand-brown flex items-center justify-center text-base border border-brand-brown/30">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-sm text-brand-dark">طلب استعادة وتغيير كلمة السر</h3>
+            <p class="text-[11px] text-slate-400">إرسال طلب مباشر لمديرة المدرسة لتحديث حسابكِ</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeForgotPassModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="forgotPassAlert" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+      <form id="formForgotPass" onsubmit="event.preventDefault(); submitForgotPassRequest();" class="space-y-3 text-xs text-slate-800">
+        <div>
+          <label class="block font-bold text-brand-dark mb-1">اسم المنسوبة أو اسم المستخدم بالإنجليزية <span class="text-brand-maroon">*</span></label>
+          <input type="text" id="forgotTeacherQuery" required placeholder="مثال: سارة الحربي أو sara_h" class="w-full px-3.5 py-2.5 bg-brand-cream/60 border border-brand-beige rounded-xl focus:outline-none focus:border-brand-brown font-semibold text-slate-900">
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-dark mb-1">التخصص / المادة</label>
+          <input type="text" id="forgotSpecialty" placeholder="مثال: حاسب آلي، رياضيات..." class="w-full px-3.5 py-2.5 bg-brand-cream/60 border border-brand-beige rounded-xl focus:outline-none focus:border-brand-brown text-slate-900">
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-dark mb-1">كلمة السر الجديدة المطلوبة (التي ترغبين بتعيينها) <span class="text-brand-maroon">*</span></label>
+          <input type="text" id="forgotNewPassword" required placeholder="اكتبي كلمة السر الجديدة المطلوبة لحسابكِ" class="w-full px-3.5 py-2.5 bg-brand-cream/60 border border-brand-beige rounded-xl focus:outline-none focus:border-brand-brown font-semibold text-slate-900 font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">ستقوم المديرة بمراجعة طلبكِ واعتماد كلمة السر هذه لحسابكِ مباشرة</p>
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-dark mb-1">ملاحظة إضافية للإدارة (اختياري)</label>
+          <input type="text" id="forgotNotes" placeholder="مثال: تعذر الدخول بكلمة المرور القديمة..." class="w-full px-3.5 py-2.5 bg-brand-cream/60 border border-brand-beige rounded-xl focus:outline-none focus:border-brand-brown text-slate-900">
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2 border-t border-brand-beige/60">
+          <button type="button" onclick="closeForgotPassModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+            إلغاء
+          </button>
+          <button type="submit" class="px-5 py-2.5 bg-brand-brown hover:bg-[#a17045] text-white font-black rounded-xl shadow-md transition flex items-center gap-1.5">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>إرسال الطلب للمديرة</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- المحرك البرمجي الموحد لصفحة الدخول -->
+  <script>
+    // Supabase connection (public/publishable key only)
+    window.__SCHOOL_SUPABASE_CLIENT__ = window.supabase.createClient(
+      window.SUPABASE_CONFIG.url,
+      window.SUPABASE_CONFIG.publishableKey
+    );
+    const getSupabaseClient = () => window.__SCHOOL_SUPABASE_CLIENT__;
+
+
+    // Supabase Auth needs an email/phone identifier. The visible username remains
+    // the user's login name, while this deterministic internal email is kept hidden.
+    function supabaseAuthEmail(username) {
+      const clean = cleanEnglishUsername(username).replace(/[^a-z0-9_.-]/g, '');
+      return `${clean}@school4.example.com`;
+    }
+
+    // =========================================================================
+    // المحرك الموحد لقاعدة بيانات المنصة (Single Source of Truth - SEC4 DB)
+    // =========================================================================
+    const SchoolDB = {
+      KEYS: {
+        TEACHERS: 'moe_school4_v3_teachers_db',
+        INITIATIVES: 'moe_school4_v3_initiatives',
+        PASSWORD_RESETS: 'moe_school4_v3_password_resets',
+        IDEAS_BANK: 'moe_school4_v3_ideas_bank',
+        IDEAS: 'moe_school4_v3_ideas_bank',
+        CURRENT_USER: 'moe_school4_v3_current_user',
+        USER_SESSION: 'moe_school4_v3_session',
+        ADMIN_SESSION: 'moe_school4_v3_admin_session',
+        ADMIN_AUTH: 'moe_school4_v3_admin_authenticated'
+      },
+
+      getTeachers() {
+        try {
+          let raw = localStorage.getItem(this.KEYS.TEACHERS);
+          if (!raw) {
+            const oldRaw = localStorage.getItem('moe_school4_teachers_db');
+            if (oldRaw) {
+              raw = oldRaw;
+              localStorage.setItem(this.KEYS.TEACHERS, oldRaw);
+            }
+          }
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (e) {}
+        return [];
+      },
+
+      saveTeachers(list) {
+        localStorage.setItem(this.KEYS.TEACHERS, JSON.stringify(list || []));
+        this.broadcast('TEACHERS_UPDATED', (list || []).length);
+        updateDatalistAndBadge();
+      },
+
+      getInitiatives() {
+        try {
+          let raw = localStorage.getItem(this.KEYS.INITIATIVES);
+          if (!raw) {
+            const oldRaw = localStorage.getItem('moe_school4_initiatives');
+            if (oldRaw) {
+              raw = oldRaw;
+              localStorage.setItem(this.KEYS.INITIATIVES, oldRaw);
+            }
+          }
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (e) {}
+        return [];
+      },
+
+      saveInitiatives(list) {
+        localStorage.setItem(this.KEYS.INITIATIVES, JSON.stringify(list || []));
+        this.broadcast('INITIATIVES_UPDATED', (list || []).length);
+      },
+
+      broadcast(type, count) {
+        try {
+          const bc = new BroadcastChannel('moe_school4_v3_channel');
+          bc.postMessage({ type, count, timestamp: Date.now() });
+        } catch (e) {}
+      }
+    };
+
+    const CryptoSecurity = {
+      async sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+
+      generateSalt(length = 16) {
+        const array = new Uint8Array(length);
+        crypto.getRandomValues(array);
+        return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+
+      async hashPassword(password, salt) {
+        if (!salt) salt = this.generateSalt();
+        const hash = await this.sha256(password + ':' + salt);
+        return { hash, salt };
+      },
+
+      async verifyPassword(password, teacher) {
+        if (!password || !teacher) return false;
+        const p = String(password).trim();
+        // 1. كلمة المرور المباشرة (نص صريح إذا وُجد)
+        if (teacher.password && String(teacher.password).trim() === p) {
+          return true;
+        }
+        // 2. مطابقة التجزئة المشفرة SHA-256 مع Salt
+        if (teacher.passwordHash && teacher.salt) {
+          const computed = await this.sha256(p + ':' + teacher.salt);
+          if (computed === teacher.passwordHash) return true;
+        }
+        // 3. مطابقة التجزئة المباشرة بدون salt
+        if (teacher.passwordHash) {
+          const direct = await this.sha256(p);
+          if (direct === teacher.passwordHash) return true;
+        }
+        // 4. كلمة المرور الافتراضية 123456 أو 123 للحسابات المضافة حديثاً
+        if (p === '123456' || p === '123') {
+          if (!teacher.passwordHash || teacher.autoDiscovered) {
+            return true;
+          }
+        }
+        return false;
+      },
+
+      async createSession(user) {
+        const randomBytes = new Uint8Array(24);
+        crypto.getRandomValues(randomBytes);
+        const randomHex = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+        const timestamp = Date.now();
+        const payload = `${user.id || 'T-00'}:${user.username || 'user'}:${user.role || 'teacher'}:${timestamp}:${randomHex}`;
+        const signature = await this.sha256(payload + ':sec4_session_salt_2026');
+        return {
+          user: {
+            id: user.id || 'T-' + Date.now().toString().slice(-4),
+            name: user.name || 'معلمة',
+            username: user.username || 'teacher',
+            specialty: user.specialty || '',
+            role: user.role || 'teacher'
+          },
+          token: `${payload}:${signature}`,
+          createdAt: timestamp,
+          expiresAt: timestamp + (12 * 3600 * 1000)
+        };
+      }
+    };
+
+    // Escapes text before inserting user-provided values into generated HTML.
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function stripHonorifics(name) {
+      if (!name && name !== 0) return '';
+      let s = String(name).trim();
+      const titleRegex = /^(?:أستاذة|الاستاذة|الاستاذه|المعلمة|المعلمه|معلمة|معلمه|أستاذ|الاستاذ|دكتورة|دكتوره|الدكتورة|الدكتوره|دكتور|الدكتور|مهندسة|المهندسة|مهندس|المهندس|مديرة|المديرة|وكيلة|الوكيلة|أ[\.\/ـ\s]|ا[\.\/ـ\s]|د[\.\/ـ\s]|م[\.\/ـ\s])\s*/gi;
+      while (titleRegex.test(s)) {
+        s = s.replace(titleRegex, '').trim();
+      }
+      return s;
+    }
+
+    function cleanEnglishUsername(u) {
+      if (!u) return '';
+      return String(u).trim().toLowerCase().replace(/^@+/, '');
+    }
+
+    function normalizeArabicText(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/^(أستاذة|الاستاذة|الاستاذه|المعلمة|المعلمه|معلمة|معلمه|أستاذ|الاستاذ|دكتورة|دكتوره|د[\.\/ـ\s]|أ[\.\/ـ\s]|ا[\.\/ـ\s])+/gi, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/[ةه]/g, 'ه')
+        .replace(/[ىي]/g, 'ي')
+        .replace(/[^\w\s\u0600-\u06FF]/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function isArabicNameMatch(name1, name2) {
+      if (!name1 || !name2) return false;
+      const n1 = normalizeArabicText(name1);
+      const n2 = normalizeArabicText(name2);
+      if (!n1 || !n2) return false;
+      if (n1 === n2) return true;
+      if (n1.includes(n2) || n2.includes(n1)) return true;
+
+      const w1 = n1.split(' ').filter(w => w.length > 1);
+      const w2 = n2.split(' ').filter(w => w.length > 1);
+      if (w1.length === 0 || w2.length === 0) return false;
+
+      // مطابقة كلمة واحدة (اسم أول أو عائلة)
+      if (w1.length === 1 && w2.includes(w1[0])) return true;
+      if (w2.length === 1 && w1.includes(w2[0])) return true;
+
+      // مطابقة الاسم الأول واللقب
+      if (w1.length >= 2 && w2.length >= 2) {
+        if (w1[0] === w2[0] && w1[w1.length - 1] === w2[w2.length - 1]) return true;
+        const shortList = w1.length <= w2.length ? w1 : w2;
+        const longList = w1.length > w2.length ? w1 : w2;
+        if (shortList.every(w => longList.includes(w))) return true;
+
+        const stripAl = w => (w.startsWith('ال') && w.length > 4) ? w.slice(2) : w;
+        if (stripAl(w1[0]) === stripAl(w2[0]) && stripAl(w1[w1.length - 1]) === stripAl(w2[w2.length - 1])) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function convertKeyboardLayout(str) {
+      if (!str) return { asAr: '', asEn: '' };
+      const enToAr = {
+        'q': 'ض', 'w': 'ص', 'e': 'ث', 'r': 'ق', 't': 'ف', 'y': 'غ', 'u': 'ع', 'i': 'ه', 'o': 'خ', 'p': 'ح',
+        'a': 'ش', 's': 'س', 'd': 'ي', 'f': 'ب', 'g': 'ل', 'h': 'ا', 'j': 'ت', 'k': 'ن', 'l': 'م',
+        'z': 'ئ', 'x': 'ء', 'c': 'ؤ', 'v': 'ر', 'b': 'لا', 'n': 'ى', 'm': 'ة'
+      };
+      const arToEn = {};
+      for (const [k, v] of Object.entries(enToAr)) {
+        arToEn[v] = k;
+      }
+      const s = String(str).toLowerCase();
+      let asAr = '';
+      for (const ch of s) asAr += enToAr[ch] || ch;
+      let asEn = '';
+      for (const ch of s) asEn += arToEn[ch] || ch;
+      return { asAr, asEn };
+    }
+
+    function isTeacherRecordMatch(teacher, query) {
+      if (!teacher || !query) return false;
+      const qRaw = String(query).trim();
+      if (!qRaw) return false;
+
+      const qLower = qRaw.toLowerCase().replace(/^@+/, '');
+      const tUser = cleanEnglishUsername(teacher.username);
+      const tName = String(teacher.name || '').trim();
+      const tNameLower = tName.toLowerCase();
+
+      // 1. التطابق المباشر التام لاسم المستخدم أو الاسم
+      if (tUser && (qLower === tUser || qRaw === '@' + tUser)) return true;
+      if (tNameLower === qLower || tName === qRaw) return true;
+
+      // 2. تطابق جزئي لاسم المستخدم (يبدأ به أو يحتويه)
+      if (tUser && (tUser.includes(qLower) || (qLower.length >= 2 && qLower.includes(tUser)))) return true;
+
+      // 3. تطابق جزئي لاسم المعلمة بالإنجليزية أو اللاتينية
+      if (tNameLower.includes(qLower)) return true;
+
+      // 4. التطابق العربي الطبيعي (الاسم المركب، الألقاب، الهمزات)
+      if (isArabicNameMatch(tName, qRaw) || isArabicNameMatch(tUser, qRaw)) return true;
+
+      // 5. تصحيح نمط لوحة المفاتيح (عربي <-> إنجليزي)
+      const conv = convertKeyboardLayout(qRaw);
+      if (conv.asAr && isArabicNameMatch(tName, conv.asAr)) return true;
+      if (conv.asEn && tUser && (tUser.includes(conv.asEn) || conv.asEn.includes(tUser))) return true;
+
+      // 6. تطابق صوتي وترجمة الحروف الشائعة (مثل AOUS <-> أوس، REEM <-> ريم)
+      const normArQ = normalizeArabicText(qRaw);
+      const normArT = normalizeArabicText(tName);
+      if (normArQ === 'اوس' && (tUser.includes('aous') || tNameLower.includes('aous'))) return true;
+      if ((qLower.includes('aous') || qLower === 'aous') && normArT.includes('اوس')) return true;
+
+      // 7. التطابق عبر البريد أو الهاتف أو الرقم الوظيفي
+      if (teacher.email && teacher.email.toLowerCase().trim() === qLower) return true;
+      if (teacher.id && String(teacher.id).toLowerCase() === qLower) return true;
+      if (teacher.phone) {
+        const cleanTPhone = String(teacher.phone).replace(/\D/g, '');
+        const cleanQPhone = qRaw.replace(/\D/g, '');
+        if (cleanTPhone && cleanQPhone && cleanQPhone.length >= 4 && cleanTPhone.includes(cleanQPhone)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function switchTab(tab) {
+      hideAlert();
+      const btnLogin = document.getElementById('btnTabLogin');
+      const btnReg = document.getElementById('btnTabRegister');
+      const formLogin = document.getElementById('formTeacherLogin');
+      const formReg = document.getElementById('formTeacherRegister');
+
+      [formLogin, formReg].forEach(f => f.classList.add('hidden'));
+      [btnLogin, btnReg].forEach(b => {
+        b.className = 'py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 text-slate-600 hover:text-brand-dark';
+      });
+
+      if (tab === 'register') {
+        formReg.classList.remove('hidden');
+        btnReg.className = 'py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 bg-brand-dark text-white shadow-sm';
+        setTimeout(() => document.getElementById('regName').focus(), 100);
+      } else {
+        formLogin.classList.remove('hidden');
+        btnLogin.className = 'py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 bg-brand-dark text-white shadow-sm';
+        setTimeout(() => document.getElementById('loginUsername').focus(), 100);
+      }
+    }
+
+    function showAlert(msg, type = 'error') {
+      const el = document.getElementById('authAlert');
+      el.textContent = msg;
+      el.className = type === 'error'
+        ? 'p-3.5 rounded-xl text-xs font-bold bg-brand-maroon/15 text-brand-maroon border border-brand-maroon/30 block'
+        : 'p-3.5 rounded-xl text-xs font-bold bg-brand-midgreen/15 text-brand-midgreen border border-brand-midgreen/30 block';
+    }
+
+    function hideAlert() {
+      const el = document.getElementById('authAlert');
+      el.className = 'hidden';
+      el.textContent = '';
+    }
+
+    function togglePass(id) {
+      const el = document.getElementById(id);
+      if (el) el.type = el.type === 'password' ? 'text' : 'password';
+    }
+
+    function autoSuggestUsername(name) {
+      if (!name) return;
+      const clean = normalizeArabicText(name);
+      const words = clean.split(' ').filter(w => w.length > 1);
+      const commonNames = {
+        'ساره': 'sara', 'سارة': 'sara', 'نوره': 'noura', 'نورة': 'noura', 'مني': 'mona', 'منى': 'mona',
+        'ريم': 'reem', 'فاطمه': 'fatima', 'فاطمة': 'fatima', 'نوف': 'nouf', 'امل': 'amal', 'أمل': 'amal',
+        'هند': 'hind', 'ليلي': 'layla', 'ليلى': 'layla', 'مريم': 'maryam', 'حنان': 'hanan', 'خلود': 'kholoud',
+        'اوس': 'aous', 'أوس': 'aous', 'عبير': 'abeer', 'عائشه': 'aisha', 'عائشة': 'aisha', 'اسماء': 'asma',
+        'منال': 'manal', 'لطيفه': 'latifa', 'لطيفة': 'latifa', 'شريفه': 'sharifa', 'شريفة': 'sharifa',
+        'هدى': 'huda', 'هدي': 'huda', 'العنود': 'alanoud', 'عنود': 'anoud', 'مشاعل': 'mashael',
+        'تهاني': 'tahani', 'بدور': 'bodoor', 'اريج': 'areej', 'أريج': 'areej', 'فوزيه': 'fawzia'
+      };
+      const arToEnLetter = {
+        'ا': 'a', 'أ': 'a', 'إ': 'a', 'آ': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'h', 'خ': 'kh',
+        'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't',
+        'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+        'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'h'
+      };
+
+      let base = '';
+      if (words.length > 0 && commonNames[words[0]]) {
+        base = commonNames[words[0]];
+      } else if (words.length > 0) {
+        for (const ch of words[0]) {
+          base += arToEnLetter[ch] || '';
+        }
+        if (!base || base.length < 2) {
+          base = 'user_' + Math.floor(100 + Math.random() * 899);
+        }
+      } else {
+        base = 'user_' + Math.floor(100 + Math.random() * 899);
+      }
+
+      if (words.length >= 2) {
+        const lastWord = words[words.length - 1].replace(/^ال/, '');
+        let lastInitial = '';
+        if (lastWord.length > 0 && arToEnLetter[lastWord[0]]) {
+          lastInitial = arToEnLetter[lastWord[0]];
+        }
+        if (lastInitial) {
+          base += '_' + lastInitial;
+        }
+      }
+
+      base = base.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (!base || base.length < 2) base = 'user_' + Math.floor(100 + Math.random() * 899);
+
+      const uInput = document.getElementById('regUsername');
+      if (uInput && (!uInput.value || uInput.value.startsWith('teacher') || uInput.value.startsWith('user_'))) {
+        uInput.value = base;
+        const tag = document.getElementById('suggestedTag');
+        if (tag) tag.textContent = `@${base}`;
+      }
+    }
+
+    // لا نعرض أسماء المنسوبات أو قائمة الحسابات في صفحة الدخول حفاظًا على الخصوصية.
+    // نعرض العدد الإجمالي فقط، ويُجلب من Supabase عبر RPC آمن لا يعيد بيانات الأعضاء.
+    function updateDatalistAndBadge() {
+      updateRegisteredTeachersCount();
+    }
+
+    async function updateRegisteredTeachersCount() {
+      const el = document.getElementById('registeredTeachersCount');
+      if (!el) return;
+      try {
+        const { data, error } = await getSupabaseClient().rpc('get_teacher_count');
+        if (!error && typeof data === 'number') {
+          el.textContent = data.toLocaleString('ar-SA');
+          return;
+        }
+      } catch (e) {}
+
+      // احتياطي مؤقت للعرض إذا لم تُنشأ دالة RPC بعد. لا يعرض أسماء.
+      try {
+        const localCount = SchoolDB.getTeachers().length;
+        if (localCount > 0) el.textContent = localCount.toLocaleString('ar-SA');
+      } catch (e) {}
+    }
+
+
+
+    async function resolveLoginEmail(identifier) {
+      const raw = String(identifier || '').trim();
+      if (!raw) return '';
+
+      // البريد الإلكتروني يمكن استخدامه مباشرة مع Supabase Auth.
+      if (raw.includes('@')) return raw.toLowerCase();
+
+      const clean = cleanEnglishUsername(raw);
+      if (!clean) return '';
+
+      // أولاً: الحسابات القديمة للمنسوبات تستخدم البريد الداخلي المشتق من اسم المستخدم.
+      const legacyTeacherEmail = supabaseAuthEmail(clean);
+
+      // ثانيًا: نحاول حل اسم المستخدم مركزيًا من profiles؛ وهذا يسمح أيضًا
+      // بتسجيل دخول المدير باسم المستخدم إذا كان له username محفوظ في الملف الشخصي.
+      try {
+        const { data, error } = await getSupabaseClient().rpc('resolve_login_email', {
+          p_identifier: clean
+        });
+        if (!error && data) return String(data).trim().toLowerCase();
+      } catch (e) {
+        console.warn('resolve_login_email RPC unavailable; using legacy teacher login.', e);
+      }
+
+      return legacyTeacherEmail;
+    }
+
+    async function handleUnifiedLogin() {
+      const identifier = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!identifier || !password) {
+        showAlert('يرجى إدخال اسم المستخدم أو البريد الإلكتروني وكلمة المرور.', 'error');
+        return;
+      }
+
+      try {
+        const authEmail = await resolveLoginEmail(identifier);
+        if (!authEmail) throw new Error('تعذر تحديد حساب المستخدم.');
+
+        const { data, error } = await getSupabaseClient().auth.signInWithPassword({
+          email: authEmail,
+          password
+        });
+
+        if (error) throw error;
+        if (!data?.user) throw new Error('لم يتم إنشاء جلسة دخول صالحة.');
+
+        const { data: profile, error: profileError } = await getSupabaseClient()
+          .from('profiles')
+          .select('id,name,username,email,role,is_active,position,department')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        if (!profile || !['admin', 'teacher'].includes(profile.role)) {
+          await getSupabaseClient().auth.signOut();
+          throw new Error('هذا الحساب لا يملك صلاحية دخول صالحة للمنصة.');
+        }
+
+        if (profile.is_active === false) {
+          await getSupabaseClient().auth.signOut();
+          throw new Error('هذا الحساب غير مفعّل حاليًا. يرجى مراجعة إدارة المدرسة.');
+        }
+
+        const user = {
+          id: data.user.id,
+          name: stripHonorifics(profile.name || data.user.user_metadata?.name || identifier),
+          username: cleanEnglishUsername(profile.username || data.user.user_metadata?.username || identifier),
+          email: profile.email || data.user.email || authEmail,
+          specialty: profile.department || data.user.user_metadata?.specialty || '',
+          role: profile.role
+        };
+
+        if (profile.role === 'admin') {
+          const adminSession = await CryptoSecurity.createSession(user);
+          sessionStorage.setItem(SchoolDB.KEYS.ADMIN_SESSION, JSON.stringify(adminSession));
+          localStorage.setItem(SchoolDB.KEYS.ADMIN_SESSION, JSON.stringify(adminSession));
+          sessionStorage.setItem(SchoolDB.KEYS.ADMIN_AUTH, 'true');
+          localStorage.setItem(SchoolDB.KEYS.ADMIN_AUTH, 'true');
+
+          // تسليم جلسة Supabase إلى لوحة الإدارة حتى يعمل أيضًا عند الاختبار
+          // من ملفات static/file://.
+          const accessToken = data.session?.access_token || '';
+          const refreshToken = data.session?.refresh_token || '';
+          const handoff = btoa(unescape(encodeURIComponent(JSON.stringify({ accessToken, refreshToken }))));
+          const adminUrl = new URL('admin.html', window.location.href);
+          adminUrl.hash = `auth_handoff=${encodeURIComponent(handoff)}`;
+
+          showAlert(`تم تسجيل الدخول بنجاح، مرحبًا ${user.name}... جاري فتح لوحة الإدارة.`, 'success');
+          setTimeout(() => { window.location.href = adminUrl.href; }, 250);
+          return;
+        }
+
+        // حساب المنسوبة: نحافظ على الجلسة المحلية المطلوبة لبقية الواجهة.
+        const session = await CryptoSecurity.createSession(user);
+        localStorage.setItem(SchoolDB.KEYS.USER_SESSION, JSON.stringify(session));
+        sessionStorage.setItem(SchoolDB.KEYS.USER_SESSION, JSON.stringify(session));
+        localStorage.setItem(SchoolDB.KEYS.CURRENT_USER, JSON.stringify(user));
+        sessionStorage.setItem(SchoolDB.KEYS.CURRENT_USER, JSON.stringify(user));
+
+        // تسليم جلسة Supabase إلى صفحة المعلمة. هذا ضروري في بيئة GitHub Pages / static
+        // لأن index.html يجب أن تستعيد نفس جلسة Auth التي تم إنشاءها هنا.
+        const accessToken = data.session?.access_token || '';
+        const refreshToken = data.session?.refresh_token || '';
+        if (!accessToken || !refreshToken) {
+          throw new Error('تعذر إنشاء جلسة Supabase صالحة للحساب.');
+        }
+
+        const handoff = btoa(unescape(encodeURIComponent(JSON.stringify({
+          accessToken,
+          refreshToken
+        }))));
+
+        const teacherUrl = new URL('index.html', window.location.href);
+        teacherUrl.hash = `auth_handoff=${encodeURIComponent(handoff)}`;
+
+        showAlert(`أهلاً بكِ ${user.name}! جاري الدخول لمنصة المبادرات...`, 'success');
+        setTimeout(() => window.location.replace(teacherUrl.href), 300);
+      } catch (error) {
+        console.error('Supabase unified login error:', error);
+        const message = String(error?.message || 'تعذر تسجيل الدخول');
+        if (/invalid login credentials/i.test(message)) {
+          showAlert('اسم المستخدم/البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
+        } else if (/email not confirmed/i.test(message)) {
+          showAlert('الحساب موجود، لكن تأكيد البريد الإلكتروني مفعّل. عطّل Confirm email للحسابات الداخلية في Supabase.', 'error');
+        } else {
+          showAlert(`تعذر تسجيل الدخول: ${message}`, 'error');
+        }
+      }
+    }
+
+    // للتوافق مع أي استدعاء قديم من نسخة سابقة.
+    async function handleTeacherLogin() {
+      return handleUnifiedLogin();
+    }
+
+    async function handleTeacherRegister() {
+      const rawName = document.getElementById('regName').value.trim();
+      const name = stripHonorifics(rawName);
+      const role = document.getElementById('regRole')?.value || 'معلمة';
+      let usernameRaw = document.getElementById('regUsername').value.trim();
+      const specialty = document.getElementById('regSpecialty').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+
+      if (!name || !specialty || !password) {
+        showAlert('يرجى ملء جميع الحقول المطلوبة لإنشاء الحساب', 'error');
+        return;
+      }
+
+      if (!usernameRaw) {
+        autoSuggestUsername(name);
+        usernameRaw = document.getElementById('regUsername').value.trim();
+      }
+
+      const cleanUname = cleanEnglishUsername(usernameRaw);
+      if (!cleanUname || cleanUname.length < 2) {
+        showAlert('اسم المستخدم يجب أن يحتوي على حرفين إنجليزيين على الأقل.', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('كلمة المرور يجب ألا تقل عن 6 أحرف.', 'error');
+        return;
+      }
+
+      const authEmail = supabaseAuthEmail(cleanUname);
+
+      try {
+        // 1) إنشاء الحساب مركزيًا في Supabase Auth.
+        const { data: signUpData, error: signUpError } = await getSupabaseClient().auth.signUp({
+          email: authEmail,
+          password,
+          options: {
+            data: {
+              name,
+              username: cleanUname,
+              role: 'teacher',
+              position: role,
+              specialty
+            }
+          }
+        });
+
+        if (signUpError) {
+          // إذا كان الحساب موجودًا أصلًا، نحاول تسجيل الدخول بكلمة المرور الجديدة.
+          if (/already registered|user already exists/i.test(signUpError.message || '')) {
+            const { data: loginData, error: loginError } = await getSupabaseClient().auth.signInWithPassword({
+              email: authEmail,
+              password
+            });
+            if (loginError) throw loginError;
+            signUpData.user = loginData.user;
+            signUpData.session = loginData.session;
+          } else {
+            throw signUpError;
+          }
+        }
+
+        const authUser = signUpData?.user;
+        if (!authUser) throw new Error('تعذر إنشاء الحساب في Supabase Auth.');
+
+        // 2) تحديث ملف المنسوبة. الـ trigger ينشئ profile تلقائيًا عند التسجيل.
+        const { data: profile, error: profileError } = await getSupabaseClient()
+          .from('profiles')
+          .update({
+            name,
+            username: cleanUname,
+            email: authEmail,
+            position: role,
+            department: specialty,
+            is_active: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', authUser.id)
+          .select('*')
+          .single();
+
+        if (profileError) throw profileError;
+
+        // إذا كان تأكيد البريد مفعلاً فلن تعود جلسة مباشرة.
+        if (!signUpData.session) {
+          showAlert('تم إنشاء الحساب في Supabase، لكن تأكيد البريد الإلكتروني مفعّل. عطّل Confirm email من إعدادات Supabase حتى يتم الدخول مباشرة دون بريد إلكتروني.', 'error');
+          return;
+        }
+
+        const user = {
+          id: authUser.id,
+          name: stripHonorifics(profile?.name || name),
+          username: cleanEnglishUsername(profile?.username || cleanUname),
+          specialty: profile?.department || specialty,
+          role: profile?.role || 'teacher'
+        };
+
+        // 3) Cache محلي للتوافق مع الواجهة الحالية، وليس كمصدر بيانات رئيسي.
+        const teachers = SchoolDB.getTeachers();
+        const existingIndex = teachers.findIndex(t =>
+          cleanEnglishUsername(t.username) === cleanUname ||
+          String(t.id) === String(authUser.id)
+        );
+        const teacherRecord = {
+          id: authUser.id,
+          name: user.name,
+          username: user.username,
+          specialty: user.specialty,
+          track: 'مسار عام',
+          role: 'معلمة',
+          status: 'active',
+          autoDiscovered: false,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        if (existingIndex >= 0) teachers[existingIndex] = { ...teachers[existingIndex], ...teacherRecord };
+        else teachers.push(teacherRecord);
+        SchoolDB.saveTeachers(teachers);
+
+        // 4) جلسة توافقية للصفحات الحالية + تسليم جلسة Supabase صراحةً إلى index.html.
+        // هذا مهم خصوصًا للحساب الجديد حتى لا تصل المعلمة إلى الصفحة قبل تثبيت جلسة Auth.
+        const session = await CryptoSecurity.createSession(user);
+        localStorage.setItem(SchoolDB.KEYS.USER_SESSION, JSON.stringify(session));
+        sessionStorage.setItem(SchoolDB.KEYS.USER_SESSION, JSON.stringify(session));
+        localStorage.setItem(SchoolDB.KEYS.CURRENT_USER, JSON.stringify(user));
+        sessionStorage.setItem(SchoolDB.KEYS.CURRENT_USER, JSON.stringify(user));
+
+        const accessToken = signUpData.session?.access_token || '';
+        const refreshToken = signUpData.session?.refresh_token || '';
+        if (!accessToken || !refreshToken) {
+          throw new Error('تعذر إنشاء جلسة Supabase صالحة للحساب.');
+        }
+
+        const handoff = btoa(unescape(encodeURIComponent(JSON.stringify({
+          accessToken,
+          refreshToken
+        }))));
+
+        const teacherUrl = new URL('index.html', window.location.href);
+        teacherUrl.hash = `auth_handoff=${encodeURIComponent(handoff)}`;
+
+        showAlert(`✓ تم حفظ حساب ${user.name} في المنصة بنجاح، جاري الدخول...`, 'success');
+        setTimeout(() => window.location.replace(teacherUrl.href), 300);
+      } catch (error) {
+        console.error('Supabase registration error:', error);
+        const message = String(error?.message || 'تعذر إنشاء الحساب');
+        if (/email not confirmed/i.test(message)) {
+          showAlert('الحساب موجود، لكن تأكيد البريد الإلكتروني في Supabase مفعّل. يجب تعطيله للحسابات الداخلية.', 'error');
+        } else if (/duplicate key|unique constraint/i.test(message)) {
+          showAlert('اسم المستخدم مستخدم مسبقًا. اختاري اسم مستخدم آخر.', 'error');
+        } else {
+          showAlert(`تعذر حفظ الحساب في Supabase: ${message}`, 'error');
+        }
+      }
+    }
+
+
+    async function openUnifiedRecovery() {
+      const identifier = document.getElementById('loginUsername')?.value.trim() || '';
+
+      // إذا كان الإدخال بريدًا إلكترونيًا، نستخدم استعادة Supabase مباشرة؛
+      // وهذا مناسب للمديرين ولأي حساب يملك بريدًا حقيقيًا.
+      if (identifier.includes('@')) {
+        try {
+          const redirectTo = new URL('reset-password.html', window.location.href).href;
+          const { error } = await getSupabaseClient().auth.resetPasswordForEmail(identifier.toLowerCase(), { redirectTo });
+          if (error) throw error;
+          showAlert('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني.', 'success');
+        } catch (error) {
+          showAlert(`تعذر إرسال رابط الاستعادة: ${String(error?.message || 'خطأ غير معروف')}`, 'error');
+        }
+        return;
+      }
+
+      // إذا كان الإدخال اسم مستخدم، نستخدم نموذج طلب الاستعادة الحالي للمنسوبات.
+      openForgotPassModal();
+      const q = document.getElementById('forgotTeacherQuery');
+      if (q && identifier) q.value = identifier;
+    }
+
+    function openForgotPassModal() {
+      document.getElementById('formForgotPass').reset();
+      document.getElementById('forgotPassAlert').className = 'hidden';
+      document.getElementById('forgotPassModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('forgotTeacherQuery').focus(), 100);
+    }
+
+    function closeForgotPassModal() {
+      document.getElementById('forgotPassModal').classList.add('hidden');
+    }
+
+    function submitForgotPassRequest() {
+      const teacherQuery = document.getElementById('forgotTeacherQuery').value.trim();
+      const specialty = document.getElementById('forgotSpecialty').value.trim();
+      const newPassword = document.getElementById('forgotNewPassword').value.trim();
+      const notes = document.getElementById('forgotNotes').value.trim();
+
+      if (!teacherQuery || !newPassword) {
+        showForgotAlert('يرجى ملء الحقول المطلوبة (اسم المنسوبة وكلمة السر المطلوبة)', 'error');
+        return;
+      }
+
+      let requests = [];
+      try {
+        const raw = localStorage.getItem(SchoolDB.KEYS.PASSWORD_RESETS);
+        if (raw) requests = JSON.parse(raw);
+        if (!Array.isArray(requests)) requests = [];
+      } catch (e) {
+        requests = [];
+      }
+
+      const newReq = {
+        id: 'REQ-' + Date.now().toString().slice(-4),
+        teacherQuery: teacherQuery,
+        specialty: specialty || 'عام',
+        requestedPassword: newPassword,
+        notes: notes || 'طلب وارد عبر بوابة الدخول',
+        status: 'معلق',
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      requests.unshift(newReq);
+      localStorage.setItem(SchoolDB.KEYS.PASSWORD_RESETS, JSON.stringify(requests));
+      SchoolDB.broadcast('PASSWORD_REQUESTS_UPDATED', requests.length);
+
+      showForgotAlert('✓ تم إرسال طلبكِ بنجاح لإدارة المدرسة! سيتم اعتماده وتحديث حسابكِ فوراً.', 'success');
+      setTimeout(() => {
+        closeForgotPassModal();
+      }, 1500);
+    }
+
+    function showForgotAlert(msg, type = 'error') {
+      const el = document.getElementById('forgotPassAlert');
+      el.textContent = msg;
+      el.className = type === 'error'
+        ? 'p-3 rounded-xl text-xs font-bold bg-brand-maroon/15 text-brand-maroon border border-brand-maroon/30 block'
+        : 'p-3 rounded-xl text-xs font-bold bg-brand-midgreen/15 text-brand-midgreen border border-brand-midgreen/30 block';
+    }
+
+    // مزامنة حية وفورية وتحديث القوائم عند استقبال رسائل من النوافذ الأخرى
+    try {
+      const bc = new BroadcastChannel('moe_school4_v3_channel');
+      bc.onmessage = (e) => {
+        if (e.data && e.data.type === 'TEACHERS_UPDATED') {
+          updateDatalistAndBadge();
+        }
+      };
+    } catch (e) {}
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === SchoolDB.KEYS.TEACHERS) {
+        updateDatalistAndBadge();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      updateDatalistAndBadge();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateDatalistAndBadge();
+    });
+  </script>
+
+  <!-- التذييل الموحد للمنصة -->
+  <footer class="w-full bg-brand-dark text-white border-t border-white/10 mt-8 py-6 no-print shrink-0">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+      <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-brand-beige">
+        <span>الثانوية الرابعة بالجبيل</span>
+        <span>•</span>
+        <span>حاضنة المبادرات النوعية بالثانوية الرابعة</span>
+        <span>•</span>
+        <span>مديرة المدرسة: فريدة بنت سعود العتيبي</span>
+      </div>
+      <div class="pt-1 flex flex-wrap items-center justify-center gap-2 text-[10px] text-white/45">
+        <span>تم الإعداد والتصميم بواسطة: أوس للخدمات التقنية</span>
+        <span>•</span>
+        <a href="https://wa.me/970568368357" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition" title="التواصل عبر واتساب">
+          <i class="fa-brands fa-whatsapp text-[11px]"></i>
+          <span>واتساب</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
